@@ -40,26 +40,31 @@ namespace TX11Business
             io.WriteShort(sn);
         }
 
+        [NotNull]
         internal static IXPaint GetPaint()
         {
             return XConnector.GetInstanceOf<IXPaint>();
         }
 
+        [NotNull]
         internal static IXPath GetPath()
         {
             return XConnector.GetInstanceOf<IXPath>();
         }
 
+        [NotNull]
         internal static IXCanvasFactory GetCanvasFactory()
         {
             return XConnector.GetInstanceOf<IXCanvasFactory>();
         }
 
+        [NotNull]
         internal static IXRegionFactory GetRegionFactory()
         {
             return XConnector.GetInstanceOf<IXRegionFactory>();
         }
 
+        [NotNull]
         internal static IXBitmapFactory GetBitmapFactory()
         {
             return XConnector.GetInstanceOf<IXBitmapFactory>();

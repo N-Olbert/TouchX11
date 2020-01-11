@@ -6,7 +6,7 @@ using TX11Shared.Graphics;
 
 namespace TX11Business.UIDependent
 {
-    internal class Font : Resource
+    internal sealed class Font : Resource
     {
         private static int _dpi = 250;
 
@@ -82,14 +82,14 @@ namespace TX11Business.UIDependent
         {
             var maxChar = 255.AsChar();
 
-            paint = Util.GetPaint();
+            this.paint = Util.GetPaint();
             if (name == null || name.EqualsIgnoreCase("cursor"))
             {
-                paint.Typeface = XTypeface.Default;
+                this.paint.Typeface = XTypeface.Default;
             }
             else if (name.EqualsIgnoreCase("fixed"))
             {
-                paint.Typeface = XTypeface.MonoSpace;
+                this.paint.Typeface = XTypeface.MonoSpace;
             }
             else
             {
@@ -106,7 +106,7 @@ namespace TX11Business.UIDependent
 
                     if (int.TryParse(fields[7], out var n) && n > 0)
                     {
-                        paint.TextSize = n;
+                        this.paint.TextSize = n;
                     }
 
                     if (!fields[11].EqualsIgnoreCase("p"))
@@ -127,7 +127,7 @@ namespace TX11Business.UIDependent
                         maxChar = 65534.AsChar();
                 }
 
-                paint.Typeface = baseTypeSet | style;
+                this.paint.Typeface = baseTypeSet | style;
             }
 
             this.maxChar = maxChar;
@@ -139,7 +139,7 @@ namespace TX11Business.UIDependent
             for (var i = 0; i < bytes.Length; i++)
                 bytes[i] = (byte) (i + 32);
 
-            widths = paint.GetTextWidths(bytes.GetString());
+            widths = this.paint.GetTextWidths(bytes.GetString());
 
             var minw = widths[0];
             var maxw = widths[0];
@@ -152,15 +152,15 @@ namespace TX11Business.UIDependent
                     maxw = width;
             }
 
-            minWidth = minw;
-            maxWidth = maxw;
+            this.minWidth = minw;
+            this.maxWidth = maxw;
 
-            var metrics = paint.GetFontMetrics();
+            var metrics = this.paint.GetFontMetrics();
 
-            ascent = (short) -metrics.Ascent;
-            descent = (short) metrics.Descent;
-            maxAscent = (short) -metrics.Top;
-            maxDescent = (short) metrics.Bottom;
+            this.ascent = (short) -metrics.Ascent;
+            this.descent = (short) metrics.Descent;
+            this.maxAscent = (short) -metrics.Top;
+            this.maxDescent = (short) metrics.Bottom;
         }
 
         /**
@@ -170,7 +170,7 @@ namespace TX11Business.UIDependent
          */
         internal XTypeface GetTypeface()
         {
-            return paint.Typeface;
+            return this.paint.Typeface;
         }
 
         /**
@@ -180,7 +180,7 @@ namespace TX11Business.UIDependent
          */
         internal int GetSize()
         {
-            return (int) paint.TextSize;
+            return (int)this.paint.TextSize;
         }
 
         /**
@@ -194,9 +194,9 @@ namespace TX11Business.UIDependent
         internal void GetTextBounds(string s, int x, int y, Rect rect)
         {
             rect.Left = x;
-            rect.Right = x + (int) paint.MeasureText(s);
-            rect.Top = y - ascent;
-            rect.Bottom = y + descent;
+            rect.Right = x + (int)this.paint.MeasureText(s);
+            rect.Top = y - this.ascent;
+            rect.Bottom = y + this.descent;
         }
 
         /**
@@ -222,9 +222,9 @@ namespace TX11Business.UIDependent
                     }
                     else
                     {
-                        XServer.FreeResource(Id);
-                        if (Client != null)
-                            Client.FreeResource(this);
+                        this.XServer.FreeResource(this.Id);
+                        if (this.Client != null)
+                            this.Client.FreeResource(this);
                     }
 
                     break;
@@ -270,6 +270,12 @@ namespace TX11Business.UIDependent
                     ErrorCode.Write(client, ErrorCode.Implementation, opcode, 0);
                     break;
             }
+        }
+
+        /// <inheritdoc />
+        public override void Dispose()
+        {
+            this.paint?.Dispose();
         }
 
         /**
@@ -328,18 +334,18 @@ namespace TX11Business.UIDependent
         private void ProcessQueryFontRequest(Client client)
         {
             var io = client.GetInputOutput();
-            var numFontProperties = (nameAtom == null) ? 0 : 1;
-            var numCharInfos = maxChar - 31;
+            var numFontProperties = (this.nameAtom == null) ? 0 : 1;
+            var numCharInfos = this.maxChar - 31;
             var chars = new char[numCharInfos];
 
-            for (var c = 32.AsChar(); c <= maxChar; c++)
+            for (var c = 32.AsChar(); c <= this.maxChar; c++)
                 chars[c - 32] = c;
 
             var s = new string(chars);
             var bounds = new Rect();
             var widths = new float[numCharInfos];
 
-            widths = paint.GetTextWidths(s);
+            widths = this.paint.GetTextWidths(s);
 
             lock (io)
             {
@@ -350,7 +356,7 @@ namespace TX11Business.UIDependent
                 // Min bounds.
                 io.WriteShort((short) 0); // Left side bearing.
                 io.WriteShort((short) 0); // Right side bearing.
-                io.WriteShort((short) minWidth); // Character width.
+                io.WriteShort((short)this.minWidth); // Character width.
                 io.WriteShort((short) 0); // Ascent.
                 io.WriteShort((short) 0); // Descent.
                 io.WriteShort((short) 0); // Attributes.
@@ -358,37 +364,37 @@ namespace TX11Business.UIDependent
 
                 // Max bounds.
                 io.WriteShort((short) 0); // Left side bearing.
-                io.WriteShort((short) maxWidth); // Right side bearing.
-                io.WriteShort((short) maxWidth); // Character width.
-                io.WriteShort(maxAscent); // Ascent.
-                io.WriteShort(maxDescent); // Descent.
+                io.WriteShort((short)this.maxWidth); // Right side bearing.
+                io.WriteShort((short)this.maxWidth); // Character width.
+                io.WriteShort(this.maxAscent); // Ascent.
+                io.WriteShort(this.maxDescent); // Descent.
                 io.WriteShort((short) 0); // Attributes.
                 io.WritePadBytes(4); // Unused.
 
                 io.WriteShort((short) 32); // Min char or byte2.
-                io.WriteShort((short) maxChar); // Max char or byte2.
+                io.WriteShort((short)this.maxChar); // Max char or byte2.
                 io.WriteShort((short) 32); // Default char.
                 io.WriteShort((short) numFontProperties);
                 io.WriteByte((byte) 0); // Draw direction = left-to-right.
                 io.WriteByte((byte) 0); // Min byte 1.
                 io.WriteByte((byte) 0); // Max byte 1.
                 io.WriteByte((byte) 0); // All chars exist = false.
-                io.WriteShort(ascent); // Font ascent.
-                io.WriteShort(descent); // Font descent.
+                io.WriteShort(this.ascent); // Font ascent.
+                io.WriteShort(this.descent); // Font descent.
                 io.WriteInt(numCharInfos);
 
                 // If name atom is specified, write the FONT property.
-                if (nameAtom != null)
+                if (this.nameAtom != null)
                 {
-                    var a = XServer.FindAtom("FONT");
+                    var a = this.XServer.FindAtom("FONT");
 
                     io.WriteInt(a.GetId()); // Name.
-                    io.WriteInt(nameAtom.GetId()); // Value.
+                    io.WriteInt(this.nameAtom.GetId()); // Value.
                 }
 
                 for (var i = 0; i < numCharInfos; i++)
                 {
-                    paint.GetTextBounds(s, i, i + 1, bounds);
+                    this.paint.GetTextBounds(s, i, i + 1, bounds);
                     io.WriteShort((short) bounds.Left); // Left side bearing.
                     io.WriteShort((short) bounds.Right); // Right side bearing.
                     io.WriteShort((short) widths[i]); // Character width.
@@ -411,17 +417,17 @@ namespace TX11Business.UIDependent
         private void ProcessQueryTextExtentsRequest(Client client, string s)
         {
             var io = client.GetInputOutput();
-            var width = (int) paint.MeasureText(s);
+            var width = (int)this.paint.MeasureText(s);
             var bounds = new Rect();
 
-            paint.GetTextBounds(s, 0, s.Length, bounds);
+            this.paint.GetTextBounds(s, 0, s.Length, bounds);
 
             lock (io)
             {
                 Util.WriteReplyHeader(client, (byte) 0);
                 io.WriteInt(0); // Reply length.
-                io.WriteShort(ascent); // Font ascent.
-                io.WriteShort(descent); // Font descent.
+                io.WriteShort(this.ascent); // Font ascent.
+                io.WriteShort(this.descent); // Font descent.
                 io.WriteShort((short) -bounds.Top); // Overall ascent.
                 io.WriteShort((short) bounds.Bottom); // Overall descent.
                 io.WriteInt(width); // Overall width.

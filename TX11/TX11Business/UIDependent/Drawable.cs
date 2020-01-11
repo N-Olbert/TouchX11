@@ -29,11 +29,11 @@ namespace TX11Business.UIDependent
          */
         internal Drawable(int width, int height, int depth, IXBitmap bgbitmap, int bgcolor)
         {
-            bitmap = Util.BitmapFactory.CreateBitmap(width, height);
-            canvas = Util.CanvasFactory.CreateCanvas(bitmap);
+            this.bitmap = Util.BitmapFactory.CreateBitmap(width, height);
+            this.canvas = Util.CanvasFactory.CreateCanvas(this.bitmap);
             this.depth = depth;
-            backgroundBitmap = bgbitmap;
-            backgroundColor = bgcolor;
+            this.backgroundBitmap = bgbitmap;
+            this.backgroundColor = bgcolor;
         }
 
         /**
@@ -43,7 +43,7 @@ namespace TX11Business.UIDependent
          */
         internal int GetWidth()
         {
-            return bitmap.Width;
+            return this.bitmap.Width;
         }
 
         /**
@@ -53,7 +53,7 @@ namespace TX11Business.UIDependent
          */
         internal int GetHeight()
         {
-            return bitmap.Height;
+            return this.bitmap.Height;
         }
 
         /**
@@ -63,7 +63,7 @@ namespace TX11Business.UIDependent
          */
         internal int GetDepth()
         {
-            return depth;
+            return this.depth;
         }
 
         /**
@@ -73,7 +73,7 @@ namespace TX11Business.UIDependent
          */
         internal IXBitmap GetBitmap()
         {
-            return bitmap;
+            return this.bitmap;
         }
 
         /**
@@ -83,7 +83,7 @@ namespace TX11Business.UIDependent
          */
         internal void SetBackgroundColor(int color)
         {
-            backgroundColor = color;
+            this.backgroundColor = color;
         }
 
         /**
@@ -93,7 +93,7 @@ namespace TX11Business.UIDependent
          */
         internal void SetBackgroundBitmap(IXBitmap bitmap)
         {
-            backgroundBitmap = bitmap;
+            this.backgroundBitmap = bitmap;
         }
 
         /**
@@ -179,7 +179,7 @@ namespace TX11Business.UIDependent
                         }
                         else
                         {
-                            if (depth != 32)
+                            if (this.depth != 32)
                                 CopyPlane(sx, sy, width, height, bitPlane, r1, dx, dy, (GContext) r2);
                             else
                                 CopyArea(sx, sy, width, height, r1, dx, dy, (GContext) r2);
@@ -288,7 +288,7 @@ namespace TX11Business.UIDependent
             int[] pixels;
             byte[] bytes = null;
 
-            if (x < 0 || y < 0 || x + width > bitmap.Width || y + height > bitmap.Height)
+            if (x < 0 || y < 0 || x + width > this.bitmap.Width || y + height > this.bitmap.Height)
             {
                 ErrorCode.Write(client, ErrorCode.Match, RequestCode.GetImage, 0);
                 return;
@@ -304,7 +304,7 @@ namespace TX11Business.UIDependent
                 return;
             }
 
-            bitmap.GetPixels(pixels, 0, width, x, y, width, height);
+            this.bitmap.GetPixels(pixels, 0, width, x, y, width, height);
 
             if (format == ZPixmapFormat)
             {
@@ -392,20 +392,20 @@ namespace TX11Business.UIDependent
          */
         internal void Clear()
         {
-            if (backgroundBitmap == null || backgroundBitmap.IsRecycled)
+            if (this.backgroundBitmap == null || this.backgroundBitmap.IsRecycled)
             {
-                bitmap.EraseColor(backgroundColor);
+                this.bitmap.EraseColor(this.backgroundColor);
             }
             else
             {
-                var width = bitmap.Width;
-                var height = bitmap.Height;
-                var dx = backgroundBitmap.Width;
-                var dy = backgroundBitmap.Height;
+                var width = this.bitmap.Width;
+                var height = this.bitmap.Height;
+                var dx = this.backgroundBitmap.Width;
+                var dy = this.backgroundBitmap.Height;
 
                 for (var y = 0; y < height; y += dy)
                 for (var x = 0; x < width; x += dx)
-                    canvas.DrawBitmap(backgroundBitmap, x, y, null);
+                        this.canvas.DrawBitmap(this.backgroundBitmap, x, y, null);
             }
         }
 
@@ -420,23 +420,25 @@ namespace TX11Business.UIDependent
         internal void ClearArea(int x, int y, int width, int height)
         {
             var r = new Rect(x, y, x + width, y + height);
-            var paint = Util.GetPaint();
-
-            if (backgroundBitmap == null || backgroundBitmap.IsRecycled)
+            
+            if (this.backgroundBitmap == null || this.backgroundBitmap.IsRecycled)
             {
-                paint.Color = (backgroundColor);
-                paint.Style = (XPaintStyle.Fill);
-                canvas.DrawRect(r, paint);
+                using (var paint = Util.GetPaint())
+                {
+                    paint.Color = (this.backgroundColor);
+                    paint.Style = (XPaintStyle.Fill);
+                    this.canvas.DrawRect(r, paint);
+                }
             }
             else
             {
-                var bw = bitmap.Width;
-                var bh = bitmap.Height;
-                var dx = backgroundBitmap.Width;
-                var dy = backgroundBitmap.Height;
+                var bw = this.bitmap.Width;
+                var bh = this.bitmap.Height;
+                var dx = this.backgroundBitmap.Width;
+                var dy = this.backgroundBitmap.Height;
 
-                canvas.Save();
-                canvas.ClipRect(r);
+                this.canvas.Save();
+                this.canvas.ClipRect(r);
 
                 for (var iy = 0; iy < bh; iy += dy)
                 {
@@ -452,11 +454,11 @@ namespace TX11Business.UIDependent
                         if (iy + dy < r.Left)
                             continue;
 
-                        canvas.DrawBitmap(backgroundBitmap, ix, iy, null);
+                        this.canvas.DrawBitmap(this.backgroundBitmap, ix, iy, null);
                     }
                 }
 
-                canvas.Restore();
+                this.canvas.Restore();
             }
         }
 
@@ -496,18 +498,19 @@ namespace TX11Business.UIDependent
                 sy = 0;
             }
 
-            if (sx + width > bitmap.Width)
-                width = bitmap.Width - sx;
+            if (sx + width > this.bitmap.Width)
+                width = this.bitmap.Width - sx;
 
-            if (sy + height > bitmap.Height)
-                height = bitmap.Height - sy;
+            if (sy + height > this.bitmap.Height)
+                height = this.bitmap.Height - sy;
 
             if (width <= 0 || height <= 0)
                 return;
 
-            var bm = Util.BitmapFactory.CreateBitmap(bitmap, sx, sy, width, height);
-
-            dst.canvas.DrawBitmap(bm, dx, dy, gc.GetPaint());
+            using (var bm = Util.BitmapFactory.CreateBitmap(this.bitmap, sx, sy, width, height))
+            {
+                dst.canvas.DrawBitmap(bm, dx, dy, gc.GetPaint());
+            }
 
             if (dr.GetRessourceType() == Resource.AttrWindow)
                 ((Window) dr).Invalidate(dx, dy, width, height);
@@ -540,11 +543,11 @@ namespace TX11Business.UIDependent
             else
                 dst = ((Window) dr).GetDrawable();
 
-            var fg = (depth == 1) ? 0xffffffff.AsInt() : gc.GetForegroundColor();
-            var bg = (depth == 1) ? 0 : gc.GetBackgroundColor();
+            var fg = (this.depth == 1) ? 0xffffffff.AsInt() : gc.GetForegroundColor();
+            var bg = (this.depth == 1) ? 0 : gc.GetBackgroundColor();
             var pixels = new int[width * height];
 
-            bitmap.GetPixels(pixels, 0, width, sx, sy, width, height);
+            this.bitmap.GetPixels(pixels, 0, width, sx, sy, width, height);
             for (var i = 0; i < pixels.Length; i++)
                 pixels[i] = ((pixels[i] & bitPlane) != 0) ? fg : bg;
 
@@ -575,10 +578,10 @@ namespace TX11Business.UIDependent
             font.GetTextBounds(s, x, y, rect);
             paint.Color = (gc.GetBackgroundColor());
             paint.Style = (XPaintStyle.Fill);
-            canvas.DrawRect(rect, paint);
+            this.canvas.DrawRect(rect, paint);
 
             paint.Color = (gc.GetForegroundColor());
-            canvas.DrawText(s, x, y, paint);
+            this.canvas.DrawText(s, x, y, paint);
         }
 
         /**
@@ -603,8 +606,8 @@ namespace TX11Business.UIDependent
             var changed = false;
             var originalColor = paint.Color;
 
-            canvas.Save();
-            gc.ApplyClipRectangles(canvas);
+            this.canvas.Save();
+            gc.ApplyClipRectangles(this.canvas);
 
             var seq = client.GetSequenceNumber();
             switch (opcode)
@@ -634,12 +637,12 @@ namespace TX11Business.UIDependent
 
                         try
                         {
-                            canvas.DrawPoints(points, paint);
+                            this.canvas.DrawPoints(points, paint);
                         }
                         catch (Exception)
                         {
                             for (i = 0; i < points.Length; i += 2)
-                                canvas.DrawPoint(points[i], points[i + 1], paint);
+                                this.canvas.DrawPoint(points[i], points[i + 1], paint);
                         }
 
                         changed = true;
@@ -654,26 +657,29 @@ namespace TX11Business.UIDependent
                     }
                     else
                     {
-                        var path = Util.GetPath();
-                        var i = 0;
-
-                        while (bytesRemaining > 0)
+                        using (var path = Util.GetPath())
                         {
-                            float x = (short) io.ReadShort();
-                            float y = (short) io.ReadShort();
+                            var i = 0;
 
-                            bytesRemaining -= 4;
-                            if (i == 0)
-                                path.MoveTo(x, y);
-                            else if (arg == 0) // Relative to origin.
-                                path.LineTo(x, y);
-                            else // Relative to previous.
-                                path.RLineTo(x, y);
-                            i++;
+                            while (bytesRemaining > 0)
+                            {
+                                float x = (short) io.ReadShort();
+                                float y = (short) io.ReadShort();
+
+                                bytesRemaining -= 4;
+                                if (i == 0)
+                                    path.MoveTo(x, y);
+                                else if (arg == 0) // Relative to origin.
+                                    path.LineTo(x, y);
+                                else // Relative to previous.
+                                    path.RLineTo(x, y);
+                                i++;
+                            }
+
+                            paint.Style = XPaintStyle.Stroke;
+                            this.canvas.DrawPath(path, paint);
                         }
 
-                        paint.Style = XPaintStyle.Stroke;
-                        canvas.DrawPath(path, paint);
                         changed = true;
                     }
 
@@ -695,7 +701,7 @@ namespace TX11Business.UIDependent
                             bytesRemaining -= 2;
                         }
 
-                        canvas.DrawLines(points, paint);
+                        this.canvas.DrawLines(points, paint);
                         changed = true;
                     }
 
@@ -722,7 +728,7 @@ namespace TX11Business.UIDependent
                             float height = io.ReadShort();
 
                             bytesRemaining -= 8;
-                            canvas.DrawRect(x, y, width, height, paint);
+                            this.canvas.DrawRect(x, y, width, height, paint);
                             changed = true;
                         }
                     }
@@ -739,31 +745,34 @@ namespace TX11Business.UIDependent
                         io.ReadByte(); // Shape.
 
                         var mode = io.ReadByte(); // Coordinate mode.
-                        var path = Util.GetPath();
-                        var i = 0;
-
-                        io.ReadSkip(2); // Unused.
-                        bytesRemaining -= 4;
-
-                        while (bytesRemaining > 0)
+                        using (var path = Util.GetPath())
                         {
-                            float x = (short) io.ReadShort();
-                            float y = (short) io.ReadShort();
+                            var i = 0;
 
+                            io.ReadSkip(2); // Unused.
                             bytesRemaining -= 4;
-                            if (i == 0)
-                                path.MoveTo(x, y);
-                            else if (mode == 0) // Relative to origin.
-                                path.LineTo(x, y);
-                            else // Relative to previous.
-                                path.RLineTo(x, y);
-                            i++;
+
+                            while (bytesRemaining > 0)
+                            {
+                                float x = (short) io.ReadShort();
+                                float y = (short) io.ReadShort();
+
+                                bytesRemaining -= 4;
+                                if (i == 0)
+                                    path.MoveTo(x, y);
+                                else if (mode == 0) // Relative to origin.
+                                    path.LineTo(x, y);
+                                else // Relative to previous.
+                                    path.RLineTo(x, y);
+                                i++;
+                            }
+
+                            path.Close();
+                            path.FillType = (gc.GetFillType());
+                            paint.Style = XPaintStyle.Fill;
+                            this.canvas.DrawPath(path, paint);
                         }
 
-                        path.Close();
-                        path.FillType = (gc.GetFillType());
-                        paint.Style = XPaintStyle.Fill;
-                        canvas.DrawPath(path, paint);
                         changed = true;
                     }
 
@@ -801,7 +810,7 @@ namespace TX11Business.UIDependent
                             var r = new Rect(x, y, x + width, y + height);
 
                             bytesRemaining -= 12;
-                            canvas.DrawArc(r, angle1 / -64.0f, angle2 / -64.0f, useCenter, paint);
+                            this.canvas.DrawArc(r, angle1 / -64.0f, angle2 / -64.0f, useCenter, paint);
                             changed = true;
                         }
                     }
@@ -867,10 +876,10 @@ namespace TX11Business.UIDependent
                     break;
             }
 
-            if (depth == 1)
+            if (this.depth == 1)
                 paint.Color = (originalColor);
 
-            canvas.Restore(); // Undo any clip rectangles.
+            this.canvas.Restore(); // Undo any clip rectangles.
 
             return changed;
         }
@@ -1053,26 +1062,26 @@ namespace TX11Business.UIDependent
             else if (depth == 32)
             {
                 // 32-bit ZPixmap.
-                var useShapeMask = (shapeMask != null && colors.Length == shapeMask.Length);
+                var useShapeMask = (this.shapeMask != null && colors.Length == this.shapeMask.Length);
 
                 for (var i = 0; i < colors.Length; i++)
                 {
                     var b = io.ReadByte();
                     var g = io.ReadByte();
                     var r = io.ReadByte();
-                    var alpha = (useShapeMask && !shapeMask[i]) ? 0 : 0xff000000.AsInt();
+                    var alpha = (useShapeMask && !this.shapeMask[i]) ? 0 : 0xff000000.AsInt();
 
                     colors[i] = alpha | (r << 16) | (g << 8) | b;
                 }
 
                 if (useShapeMask)
-                    shapeMask = null;
+                    this.shapeMask = null;
             }
             else if (isShapeMask)
             {
                 // ZPixmap, depth = 1, shape mask.
-                shapeMask = new bool[colors.Length];
-                io.ReadShapeMask(shapeMask, width, height);
+                this.shapeMask = new bool[colors.Length];
+                io.ReadShapeMask(this.shapeMask, width, height);
                 io.ReadSkip(pad);
 
                 return false; // Don't redraw.
@@ -1091,7 +1100,7 @@ namespace TX11Business.UIDependent
             }
 
             io.ReadSkip(pad);
-            canvas.DrawBitmap(colors, 0, width, dstX, dstY, width, height, true, gc.GetPaint());
+            this.canvas.DrawBitmap(colors, 0, width, dstX, dstY, width, height, true, gc.GetPaint());
 
             return true;
         }
@@ -1187,7 +1196,7 @@ namespace TX11Business.UIDependent
                     var paint = gc.GetPaint();
 
                     x += delta;
-                    canvas.DrawText(s, x, y, paint);
+                    this.canvas.DrawText(s, x, y, paint);
                     x += paint.MeasureText(s);
                 }
             }

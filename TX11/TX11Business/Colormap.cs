@@ -5,7 +5,7 @@ using TX11Business.UIDependent;
 
 namespace TX11Business
 {
-    internal class Colormap : Resource
+    internal sealed class Colormap : Resource
     {
         private bool installed;
         private readonly ScreenView screen;
@@ -689,6 +689,11 @@ namespace TX11Business
                     ErrorCode.Write(client, ErrorCode.Implementation, opcode, 0);
                     break;
             }
+        }
+
+        public override void Dispose()
+        {
+            //Nothing to dispose
         }
 
         /**

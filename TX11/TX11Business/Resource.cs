@@ -1,6 +1,8 @@
-﻿namespace TX11Business
+﻿using System;
+
+namespace TX11Business
 {
-    internal abstract class Resource
+    internal abstract class Resource : IDisposable
     {
         internal const int AttrWindow = 1;
         internal const int AttrPixmap = 2;
@@ -108,6 +110,7 @@
          */
         internal virtual void Delete()
         {
+            Dispose();
             XServer.FreeResource(Id);
         }
 
@@ -122,5 +125,10 @@
 
          */
         internal abstract void ProcessRequest(Client client, byte opcode, byte arg, int bytesRemaining);
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public abstract void Dispose();
     }
 }

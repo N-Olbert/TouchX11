@@ -7,7 +7,7 @@ using TX11Shared.Graphics;
 
 namespace TX11Business.UIDependent
 {
-    internal class Window : Resource
+    internal sealed class Window : Resource
     {
         private readonly ScreenView screen;
         private Window parent;
@@ -3368,6 +3368,15 @@ namespace TX11Business.UIDependent
                 if (updatePointer)
                     screen.UpdatePointer(0);
             }
+        }
+
+        /// <inheritdoc />
+        public override void Dispose()
+        {
+            boundingShapeRegion?.Dispose();
+            clipShapeRegion?.Dispose();
+            inputShapeRegion?.Dispose();
+            backgroundBitmap?.Dispose();
         }
 
         /**

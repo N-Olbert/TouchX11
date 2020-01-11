@@ -4,7 +4,7 @@ using TX11Shared.Graphics;
 
 namespace TX11Business.UIDependent
 {
-    internal class Cursor : Resource
+    internal sealed class Cursor : Resource
     {
         private readonly int hotspotX;
         private readonly int hotspotY;
@@ -307,6 +307,12 @@ namespace TX11Business.UIDependent
                     ErrorCode.Write(client, ErrorCode.Implementation, opcode, Id);
                     break;
             }
+        }
+
+        /// <inheritdoc />
+        public override void Dispose()
+        {
+            bitmap?.Dispose();
         }
 
         /**

@@ -13,7 +13,7 @@ namespace TX11Business.UIDependent
     /// <para>https://www.x.org/releases/X11R7.7/doc/xproto/x11protocol.html#glossary:Graphics_context</para>
     /// </summary>
     /// <seealso cref="TX11Business.Resource" />
-    internal class GContext : Resource
+    internal sealed class GContext : Resource
     {
         private readonly IXPaint paint;
         private Font font;
@@ -56,8 +56,8 @@ namespace TX11Business.UIDependent
          */
         internal GContext(int id, XServer xServer, Client client) : base(AttrGcontext, id, xServer, client)
         {
-            paint = Util.GetPaint();
-            attributes = new int[]
+            this.paint = Util.GetPaint();
+            this.attributes = new int[]
             {
                 3, // function = Copy
                 0xffffffff.AsInt(), // plane-mask = all ones
@@ -92,7 +92,7 @@ namespace TX11Business.UIDependent
          */
         internal IXPaint GetPaint()
         {
-            return paint;
+            return this.paint;
         }
 
         /**
@@ -102,7 +102,7 @@ namespace TX11Business.UIDependent
          */
         internal int GetBackgroundColor()
         {
-            return backgroundColor;
+            return this.backgroundColor;
         }
 
         /**
@@ -112,7 +112,7 @@ namespace TX11Business.UIDependent
          */
         internal int GetForegroundColor()
         {
-            return foregroundColor;
+            return this.foregroundColor;
         }
 
         /**
@@ -122,7 +122,7 @@ namespace TX11Business.UIDependent
          */
         internal XPathFillType GetFillType()
         {
-            return fillType;
+            return this.fillType;
         }
 
         /**
@@ -133,7 +133,7 @@ namespace TX11Business.UIDependent
          */
         internal int GetArcMode()
         {
-            return attributes[ArcMode];
+            return this.attributes[ArcMode];
         }
 
         /**
@@ -143,7 +143,7 @@ namespace TX11Business.UIDependent
          */
         internal bool GetGraphicsExposure()
         {
-            return (attributes[GraphicsExposures] != 0);
+            return (this.attributes[GraphicsExposures] != 0);
         }
 
         /**
@@ -153,7 +153,7 @@ namespace TX11Business.UIDependent
          */
         internal Font GetFont()
         {
-            return font;
+            return this.font;
         }
 
         /**
@@ -164,14 +164,14 @@ namespace TX11Business.UIDependent
          */
         internal bool SetFont(int id)
         {
-            var r = XServer.GetResource(id);
+            var r = this.XServer.GetResource(id);
 
             if (r == null || r.GetRessourceType() != Resource.AttrFont)
                 return false;
 
-            font = (Font) r;
-            paint.Typeface = (font.GetTypeface());
-            paint.TextSize = (font.GetSize());
+            this.font = (Font) r;
+            this.paint.Typeface = (this.font.GetTypeface());
+            this.paint.TextSize = (this.font.GetSize());
 
             return true;
         }
@@ -183,13 +183,13 @@ namespace TX11Business.UIDependent
          */
         internal void ApplyClipRectangles(IXCanvas canvas)
         {
-            if (clipRectangles == null)
+            if (this.clipRectangles == null)
                 return;
 
-            if (clipRectangles.Length == 0)
+            if (this.clipRectangles.Length == 0)
                 canvas.ClipRect(0, 0, 0, 0);
             else
-                foreach (var r in clipRectangles)
+                foreach (var r in this.clipRectangles)
                     canvas.ClipRect(r, XRegionOperation.Union);
         }
 
@@ -210,7 +210,7 @@ namespace TX11Business.UIDependent
             {
                 case RequestCode.QueryFont:
                 case RequestCode.QueryTextExtents:
-                    font.ProcessRequest(client, opcode, arg, bytesRemaining);
+                    this.font.ProcessRequest(client, opcode, arg, bytesRemaining);
                     return;
                 case RequestCode.AttrChangeGc:
                     ProcessValues(client, opcode, bytesRemaining);
@@ -225,7 +225,7 @@ namespace TX11Business.UIDependent
                     {
                         var id = io.ReadInt(); // Destination GContext.
                         var mask = io.ReadInt(); // Value mask.
-                        var r = XServer.GetResource(id);
+                        var r = this.XServer.GetResource(id);
 
                         if (r == null || r.GetRessourceType() != Resource.AttrGcontext)
                         {
@@ -237,7 +237,7 @@ namespace TX11Business.UIDependent
 
                             for (var i = 0; i < 23; i++)
                                 if ((mask & (1 << i)) != 0)
-                                    gc.attributes[i] = attributes[i];
+                                    gc.attributes[i] = this.attributes[i];
 
                             gc.ApplyValues(null, opcode);
                         }
@@ -286,7 +286,7 @@ namespace TX11Business.UIDependent
                         {
                             var i = 0;
 
-                            clipRectangles = new Rect[bytesRemaining / 8];
+                            this.clipRectangles = new Rect[bytesRemaining / 8];
                             while (bytesRemaining > 0)
                             {
                                 int x = (short) io.ReadShort();
@@ -295,7 +295,7 @@ namespace TX11Business.UIDependent
                                 var height = io.ReadShort();
 
                                 bytesRemaining -= 8;
-                                clipRectangles[i++] = new Rect(x + clipXOrigin, y + clipYOrigin,
+                                this.clipRectangles[i++] = new Rect(x + clipXOrigin, y + clipYOrigin,
                                                                x + clipXOrigin + width, y + clipYOrigin + height);
                             }
                         }
@@ -310,9 +310,9 @@ namespace TX11Business.UIDependent
                     }
                     else
                     {
-                        XServer.FreeResource(Id);
-                        if (Client != null)
-                            Client.FreeResource(this);
+                        this.XServer.FreeResource(this.Id);
+                        if (this.Client != null)
+                            this.Client.FreeResource(this);
                     }
 
                     break; //Original code had fallthrough, seems like a bug
@@ -321,6 +321,12 @@ namespace TX11Business.UIDependent
                     ErrorCode.Write(client, ErrorCode.Implementation, opcode, 0);
                     break;
             }
+        }
+
+        /// <inheritdoc />
+        public override void Dispose()
+        {
+            this.paint?.Dispose();
         }
 
         /**
@@ -402,7 +408,7 @@ namespace TX11Business.UIDependent
                 case GraphicsExposures:
                 case Dashes:
                 case ArcMode:
-                    attributes[maskBit] = io.ReadByte();
+                    this.attributes[maskBit] = io.ReadByte();
                     io.ReadSkip(3);
                     break;
                 case PlaneMask:
@@ -412,18 +418,18 @@ namespace TX11Business.UIDependent
                 case Stipple:
                 case Font:
                 case ClipMask:
-                    attributes[maskBit] = io.ReadInt();
+                    this.attributes[maskBit] = io.ReadInt();
                     break;
                 case LineWidth:
                 case DashOffset:
-                    attributes[maskBit] = io.ReadShort();
+                    this.attributes[maskBit] = io.ReadShort();
                     io.ReadSkip(2);
                     break;
                 case TileStippleXOrigin:
                 case TileStippleYOrigin:
                 case ClipXOrigin:
                 case ClipYOrigin:
-                    attributes[maskBit] = (short) io.ReadShort();
+                    this.attributes[maskBit] = (short) io.ReadShort();
                     io.ReadSkip(2);
                     break;
             }
@@ -441,58 +447,58 @@ namespace TX11Business.UIDependent
         {
             var ok = true;
 
-            foregroundColor = (attributes[Foreground] | 0xff000000).AsInt();
-            backgroundColor = (attributes[Background] | 0xff000000).AsInt();
+            this.foregroundColor = (this.attributes[Foreground] | 0xff000000).AsInt();
+            this.backgroundColor = (this.attributes[Background] | 0xff000000).AsInt();
 
-            paint.Color = (foregroundColor);
-            paint.StrokeWidth = (attributes[LineWidth]);
+            this.paint.Color = (this.foregroundColor);
+            this.paint.StrokeWidth = (this.attributes[LineWidth]);
 
-            if (attributes[Function] == 6) // XOR.
+            if (this.attributes[Function] == 6) // XOR.
             {
                 //_paint.setXfermode (new PixelXorXfermode(0xffffffff));
-                paint.XferMode = XPixelXferMode.XOr;
+                this.paint.XferMode = XPixelXferMode.XOr;
             }
             else
             {
-                paint.XferMode = XPixelXferMode.None;
+                this.paint.XferMode = XPixelXferMode.None;
             }
 
-            switch (attributes[CapStyle])
+            switch (this.attributes[CapStyle])
             {
                 case 0: // NotLast
                 case 1: // Butt
-                    paint.StrokeCap = XStrokeCap.Butt;
+                    this.paint.StrokeCap = XStrokeCap.Butt;
                     break;
                 case 2: // Round
-                    paint.StrokeCap = XStrokeCap.Round;
+                    this.paint.StrokeCap = XStrokeCap.Round;
                     break;
                 case 3: // Projecting
-                    paint.StrokeCap = XStrokeCap.Square;
+                    this.paint.StrokeCap = XStrokeCap.Square;
                     break;
             }
 
-            switch (attributes[JoinStyle])
+            switch (this.attributes[JoinStyle])
             {
                 case 0: // Miter
-                    paint.StrokeJoin = XStrokeJoin.Miter;
+                    this.paint.StrokeJoin = XStrokeJoin.Miter;
                     break;
                 case 1: // Round
-                    paint.StrokeJoin = XStrokeJoin.Round;
+                    this.paint.StrokeJoin = XStrokeJoin.Round;
                     break;
                 case 2: // Bevel
-                    paint.StrokeJoin = XStrokeJoin.Bevel;
+                    this.paint.StrokeJoin = XStrokeJoin.Bevel;
                     break;
             }
 
-            if (attributes[FillRule] == 1) // Winding.
-                fillType = XPathFillType.Winding;
+            if (this.attributes[FillRule] == 1) // Winding.
+                this.fillType = XPathFillType.Winding;
             else // Defaults to even-odd.
-                fillType = XPathFillType.EvenOdd;
+                this.fillType = XPathFillType.EvenOdd;
 
-            var fid = attributes[Font];
+            var fid = this.attributes[Font];
 
-            if (font == null || fid == 0)
-                font = XServer.GetDefaultFont();
+            if (this.font == null || fid == 0)
+                this.font = this.XServer.GetDefaultFont();
 
             if (fid != 0 && !SetFont(fid))
             {

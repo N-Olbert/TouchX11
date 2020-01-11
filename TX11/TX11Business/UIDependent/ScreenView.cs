@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using JetBrains.Annotations;
 using TX11Shared;
 using TX11Shared.Graphics;
 using TX11Shared.Keyboard;
@@ -9,6 +10,7 @@ namespace TX11Business.UIDependent
 {
     internal class ScreenView : IXScreenObserver
     {
+        [NotNull]
         private readonly XServer xServer;
         private readonly int rootId;
         private readonly Window rootWindow;
@@ -62,20 +64,20 @@ namespace TX11Business.UIDependent
         {
             this.xServer = xServer;
             this.rootId = rootId;
-            installedColormaps = new List<Colormap>();
+            this.installedColormaps = new List<Colormap>();
             this.pixelsPerMillimeter = pixelsPerMillimeter;
             this.pixelsPerMillimeter = 3.779527f;
-            paint = Util.GetPaint();
+            this.paint = Util.GetPaint();
 
-            rootWindow = new Window(this.rootId, this.xServer, null, this, null, 0, 0, GetWidth(), GetHeight(), 0,
+            this.rootWindow = new Window(this.rootId, this.xServer, null, this, null, 0, 0, GetWidth(), GetHeight(), 0,
                                     false, true);
-            this.xServer.AddResource(rootWindow);
+            this.xServer.AddResource(this.rootWindow);
 
-            currentCursor = rootWindow.GetCursor();
-            currentCursorX = GetWidth() / 2;
-            currentCursorY = GetHeight() / 2;
-            motionWindow = rootWindow;
-            focusWindow = rootWindow;
+            this.currentCursor = this.rootWindow.GetCursor();
+            this.currentCursorX = GetWidth() / 2;
+            this.currentCursorY = GetHeight() / 2;
+            this.motionWindow = this.rootWindow;
+            this.focusWindow = this.rootWindow;
         }
 
         ///**
@@ -100,7 +102,7 @@ namespace TX11Business.UIDependent
 	 */
         internal Window GetRootWindow()
         {
-            return rootWindow;
+            return this.rootWindow;
         }
 
         internal short GetHeight()
@@ -122,7 +124,7 @@ namespace TX11Business.UIDependent
 		 */
         internal Colormap GetDefaultColormap()
         {
-            return defaultColormap;
+            return this.defaultColormap;
         }
 
         /**
@@ -132,7 +134,7 @@ namespace TX11Business.UIDependent
 	 */
         internal Cursor GetCurrentCursor()
         {
-            return currentCursor;
+            return this.currentCursor;
         }
 
         /**
@@ -142,7 +144,7 @@ namespace TX11Business.UIDependent
 	 */
         internal int GetPointerX()
         {
-            return currentCursorX;
+            return this.currentCursorX;
         }
 
         /**
@@ -152,7 +154,7 @@ namespace TX11Business.UIDependent
 	 */
         internal int GetPointerY()
         {
-            return currentCursorY;
+            return this.currentCursorY;
         }
 
         /**
@@ -163,7 +165,7 @@ namespace TX11Business.UIDependent
 	 */
         internal int GetButtons()
         {
-            return buttons;
+            return this.buttons;
         }
 
         /**
@@ -173,7 +175,7 @@ namespace TX11Business.UIDependent
 	 */
         internal Window GetFocusWindow()
         {
-            return focusWindow;
+            return this.focusWindow;
         }
 
         /**
@@ -183,14 +185,14 @@ namespace TX11Business.UIDependent
 	 */
         internal void Blank(bool flag)
         {
-            if (isBlanked == flag)
+            if (this.isBlanked == flag)
                 return;
 
-            isBlanked = flag;
+            this.isBlanked = flag;
             PostInvalidate();
 
-            if (!isBlanked)
-                xServer.ResetScreenSaver();
+            if (!this.isBlanked)
+                this.xServer.ResetScreenSaver();
         }
 
         internal void PostInvalidate(int left, int top, int v1, int v2)
@@ -210,11 +212,11 @@ namespace TX11Business.UIDependent
 		 */
         internal void AddInstalledColormap(Colormap cmap)
         {
-            Util.Add(installedColormaps, cmap);
-            if (defaultColormap == null)
+            Util.Add(this.installedColormaps, cmap);
+            if (this.defaultColormap == null)
             {
-                defaultColormap = cmap;
-                rootWindow?.SetColormap(cmap); //fix for  fvwm
+                this.defaultColormap = cmap;
+                this.rootWindow?.SetColormap(cmap); //fix for  fvwm
             }
         }
 
@@ -225,13 +227,13 @@ namespace TX11Business.UIDependent
 	 */
         internal void RemoveInstalledColormap(Colormap cmap)
         {
-            Util.Remove(installedColormaps, cmap);
-            if (defaultColormap == cmap)
+            Util.Remove(this.installedColormaps, cmap);
+            if (this.defaultColormap == cmap)
             {
-                if (installedColormaps.Size() == 0)
-                    defaultColormap = null;
+                if (this.installedColormaps.Size() == 0)
+                    this.defaultColormap = null;
                 else
-                    defaultColormap = installedColormaps.FirstOrDefault();
+                    this.defaultColormap = this.installedColormaps.FirstOrDefault();
             }
         }
 
@@ -240,12 +242,12 @@ namespace TX11Business.UIDependent
 	 */
         internal void RemoveNonDefaultColormaps()
         {
-            if (installedColormaps.Size() < 2)
+            if (this.installedColormaps.Size() < 2)
                 return;
 
-            Util.Clear(installedColormaps);
-            if (defaultColormap != null)
-                Util.Add(installedColormaps, defaultColormap);
+            Util.Clear(this.installedColormaps);
+            if (this.defaultColormap != null)
+                Util.Add(this.installedColormaps, this.defaultColormap);
         }
 
         /**
@@ -256,12 +258,12 @@ namespace TX11Business.UIDependent
 	 */
         internal void DeleteWindow(Window w)
         {
-            if (grabPointerWindow == w || grabConfineWindow == w)
+            if (this.grabPointerWindow == w || this.grabConfineWindow == w)
             {
-                grabPointerClient = null;
-                grabPointerWindow = null;
-                grabCursor = null;
-                grabConfineWindow = null;
+                this.grabPointerClient = null;
+                this.grabPointerWindow = null;
+                this.grabCursor = null;
+                this.grabConfineWindow = null;
                 UpdatePointer(2);
             }
             else
@@ -280,36 +282,36 @@ namespace TX11Business.UIDependent
 	 */
         internal void RevertFocus(Window w)
         {
-            if (w == grabKeyboardWindow)
+            if (w == this.grabKeyboardWindow)
             {
-                var pw = rootWindow.WindowAtPoint(motionX, motionY);
+                var pw = this.rootWindow.WindowAtPoint(this.motionX, this.motionY);
 
-                Window.FocusInOutNotify(grabKeyboardWindow, focusWindow, pw, rootWindow, 2);
-                grabKeyboardClient = null;
-                grabKeyboardWindow = null;
+                Window.FocusInOutNotify(this.grabKeyboardWindow, this.focusWindow, pw, this.rootWindow, 2);
+                this.grabKeyboardClient = null;
+                this.grabKeyboardWindow = null;
             }
 
-            if (w == focusWindow)
+            if (w == this.focusWindow)
             {
-                var pw = rootWindow.WindowAtPoint(motionX, motionY);
+                var pw = this.rootWindow.WindowAtPoint(this.motionX, this.motionY);
 
-                if (focusRevertTo == 0)
+                if (this.focusRevertTo == 0)
                 {
-                    focusWindow = null;
+                    this.focusWindow = null;
                 }
-                else if (focusRevertTo == 1)
+                else if (this.focusRevertTo == 1)
                 {
-                    focusWindow = rootWindow;
+                    this.focusWindow = this.rootWindow;
                 }
                 else
                 {
-                    focusWindow = w.GetParent();
-                    while (!focusWindow.IsViewable())
-                        focusWindow = focusWindow.GetParent();
+                    this.focusWindow = w.GetParent();
+                    while (!this.focusWindow.IsViewable())
+                        this.focusWindow = this.focusWindow.GetParent();
                 }
 
-                focusRevertTo = 0;
-                Window.FocusInOutNotify(w, focusWindow, pw, rootWindow, grabKeyboardWindow == null ? 0 : 3);
+                this.focusRevertTo = 0;
+                Window.FocusInOutNotify(w, this.focusWindow, pw, this.rootWindow, this.grabKeyboardWindow == null ? 0 : 3);
             }
         }
 
@@ -320,27 +322,27 @@ namespace TX11Business.UIDependent
 	 */
         protected void OnDraw(IXCanvas canvas)
         {
-            if (rootWindow == null)
+            if (this.rootWindow == null)
             {
                 return;
             }
 
-            lock (xServer)
+            lock (this.xServer)
             {
-                if (isBlanked)
+                if (this.isBlanked)
                 {
                     canvas.DrawColor(0xff000000);
                     return;
                 }
 
-                paint.Reset();
-                rootWindow.Draw(canvas, paint);
-                canvas.DrawBitmap(currentCursor.GetBitmap(), currentCursorX - currentCursor.GetHotspotX(),
-                                  currentCursorY - currentCursor.GetHotspotY(), null);
+                this.paint.Reset();
+                this.rootWindow.Draw(canvas, this.paint);
+                canvas.DrawBitmap(this.currentCursor.GetBitmap(), this.currentCursorX - this.currentCursor.GetHotspotX(),
+                                  this.currentCursorY - this.currentCursor.GetHotspotY(), null);
 
-                drawnCursor = currentCursor;
-                drawnCursorX = currentCursorX;
-                drawnCursorY = currentCursorY;
+                this.drawnCursor = this.currentCursor;
+                this.drawnCursorX = this.currentCursorX;
+                this.drawnCursorY = this.currentCursorY;
             }
         }
 
@@ -355,12 +357,12 @@ namespace TX11Business.UIDependent
 	 */
         protected void OnSizeChanged(int width, int height, int oldWidth, int oldHeight)
         {
-            drawnCursorX = currentCursorX;
-            drawnCursorY = currentCursorY;
-            motionX = currentCursorX;
-            motionY = currentCursorY;
-            motionWindow = rootWindow;
-            focusWindow = rootWindow;
+            this.drawnCursorX = this.currentCursorX;
+            this.drawnCursorY = this.currentCursorY;
+            this.motionX = this.currentCursorX;
+            this.motionY = this.currentCursorY;
+            this.motionWindow = this.rootWindow;
+            this.focusWindow = this.rootWindow;
         }
 
         /**
@@ -372,19 +374,19 @@ namespace TX11Business.UIDependent
 	 */
         private void MovePointer(int x, int y, Cursor cursor)
         {
-            if (drawnCursor != null)
+            if (this.drawnCursor != null)
             {
-                var left = drawnCursorX - drawnCursor.GetHotspotX();
-                var top = drawnCursorY - drawnCursor.GetHotspotY();
-                var bm = drawnCursor.GetBitmap();
+                var left = this.drawnCursorX - this.drawnCursor.GetHotspotX();
+                var top = this.drawnCursorY - this.drawnCursor.GetHotspotY();
+                var bm = this.drawnCursor.GetBitmap();
 
                 PostInvalidate(left, top, left + bm.Width, top + bm.Height);
-                drawnCursor = null;
+                this.drawnCursor = null;
             }
 
-            currentCursor = cursor;
-            currentCursorX = x;
-            currentCursorY = y;
+            this.currentCursor = cursor;
+            this.currentCursorX = x;
+            this.currentCursorY = y;
 
             {
                 var left = x - cursor.GetHotspotX();
@@ -407,9 +409,9 @@ namespace TX11Business.UIDependent
             Window w;
             Cursor c;
 
-            if (grabConfineWindow != null)
+            if (this.grabConfineWindow != null)
             {
-                var rect = grabConfineWindow.GetIRect();
+                var rect = this.grabConfineWindow.GetIRect();
 
                 if (x < rect.Left)
                     x = rect.Left;
@@ -422,40 +424,40 @@ namespace TX11Business.UIDependent
                     y = rect.Bottom - 1;
             }
 
-            if (grabPointerWindow != null)
-                w = grabPointerWindow;
+            if (this.grabPointerWindow != null)
+                w = this.grabPointerWindow;
             else
-                w = rootWindow.WindowAtPoint(x, y);
+                w = this.rootWindow.WindowAtPoint(x, y);
 
-            if (grabCursor != null)
-                c = grabCursor;
+            if (this.grabCursor != null)
+                c = this.grabCursor;
             else
                 c = w.GetCursor();
 
-            if (c != currentCursor || x != currentCursorX || y != currentCursorY)
+            if (c != this.currentCursor || x != this.currentCursorX || y != this.currentCursorY)
                 MovePointer(x, y, c);
 
-            if (w != motionWindow)
+            if (w != this.motionWindow)
             {
-                motionWindow.LeaveEnterNotify(x, y, w, mode);
-                motionWindow = w;
-                motionX = x;
-                motionY = y;
+                this.motionWindow.LeaveEnterNotify(x, y, w, mode);
+                this.motionWindow = w;
+                this.motionX = x;
+                this.motionY = y;
             }
-            else if (x != motionX || y != motionY)
+            else if (x != this.motionX || y != this.motionY)
             {
-                if (grabPointerWindow == null)
+                if (this.grabPointerWindow == null)
                 {
-                    w.MotionNotify(x, y, buttons & 0xff00, null);
+                    w.MotionNotify(x, y, this.buttons & 0xff00, null);
                 }
-                else if (!grabPointerSynchronous)
+                else if (!this.grabPointerSynchronous)
                 {
-                    w.GrabMotionNotify(x, y, buttons & 0xff00, grabEventMask, grabPointerClient,
-                                       grabPointerOwnerEvents);
+                    w.GrabMotionNotify(x, y, this.buttons & 0xff00, this.grabEventMask, this.grabPointerClient,
+                                       this.grabPointerOwnerEvents);
                 } // Else need to queue the events for later.
 
-                motionX = x;
-                motionY = y;
+                this.motionX = x;
+                this.motionY = y;
             }
         }
 
@@ -466,7 +468,7 @@ namespace TX11Business.UIDependent
 	 */
         internal void UpdatePointer(int mode)
         {
-            UpdatePointerPosition(currentCursorX, currentCursorY, mode);
+            UpdatePointerPosition(this.currentCursorX, this.currentCursorY, mode);
         }
 
         /**
@@ -477,7 +479,7 @@ namespace TX11Business.UIDependent
 	 */
         internal void UpdatePointerButtons(int button, bool pressed)
         {
-            var p = xServer.GetPointer();
+            var p = this.xServer.GetPointer();
 
             button = p.MapButton(button);
             if (button == 0)
@@ -487,49 +489,49 @@ namespace TX11Business.UIDependent
 
             if (pressed)
             {
-                if ((buttons & mask) != 0)
+                if ((this.buttons & mask) != 0)
                     return;
 
-                buttons |= mask;
+                this.buttons |= mask;
             }
             else
             {
-                if ((buttons & mask) == 0)
+                if ((this.buttons & mask) == 0)
                     return;
 
-                buttons &= ~mask;
+                this.buttons &= ~mask;
             }
 
-            if (grabPointerWindow == null)
+            if (this.grabPointerWindow == null)
             {
-                var w = rootWindow.WindowAtPoint(motionX, motionY);
+                var w = this.rootWindow.WindowAtPoint(this.motionX, this.motionY);
                 PassiveButtonGrab pbg = null;
 
                 if (pressed)
-                    pbg = w.FindPassiveButtonGrab(buttons, null);
+                    pbg = w.FindPassiveButtonGrab(this.buttons, null);
 
                 if (pbg != null)
                 {
-                    grabPointerClient = pbg.GetGrabClient();
-                    grabPointerWindow = pbg.GetGrabWindow();
-                    grabPointerPassive = true;
-                    grabPointerAutomatic = false;
-                    grabPointerTime = xServer.GetTimestamp();
-                    grabConfineWindow = pbg.GetConfineWindow();
-                    grabEventMask = pbg.GetEventMask();
-                    grabPointerOwnerEvents = pbg.GetOwnerEvents();
-                    grabPointerSynchronous = pbg.GetPointerSynchronous();
-                    grabKeyboardSynchronous = pbg.GetKeyboardSynchronous();
+                    this.grabPointerClient = pbg.GetGrabClient();
+                    this.grabPointerWindow = pbg.GetGrabWindow();
+                    this.grabPointerPassive = true;
+                    this.grabPointerAutomatic = false;
+                    this.grabPointerTime = this.xServer.GetTimestamp();
+                    this.grabConfineWindow = pbg.GetConfineWindow();
+                    this.grabEventMask = pbg.GetEventMask();
+                    this.grabPointerOwnerEvents = pbg.GetOwnerEvents();
+                    this.grabPointerSynchronous = pbg.GetPointerSynchronous();
+                    this.grabKeyboardSynchronous = pbg.GetKeyboardSynchronous();
 
-                    grabCursor = pbg.GetCursor();
-                    if (grabCursor == null)
-                        grabCursor = grabPointerWindow.GetCursor();
+                    this.grabCursor = pbg.GetCursor();
+                    if (this.grabCursor == null)
+                        this.grabCursor = this.grabPointerWindow.GetCursor();
 
                     UpdatePointer(1);
                 }
                 else
                 {
-                    var ew = w.ButtonNotify(pressed, motionX, motionY, button, null);
+                    var ew = w.ButtonNotify(pressed, this.motionX, this.motionY, button, null);
                     Client c = null;
 
                     if (pressed && ew != null)
@@ -546,35 +548,35 @@ namespace TX11Business.UIDependent
                     {
                         var em = ew.GetClientEventMask(c);
 
-                        grabPointerClient = c;
-                        grabPointerWindow = ew;
-                        grabPointerPassive = false;
-                        grabPointerAutomatic = true;
-                        grabPointerTime = xServer.GetTimestamp();
-                        grabCursor = ew.GetCursor();
-                        grabConfineWindow = null;
-                        grabEventMask = em & EventCode.MaskAllPointer;
-                        grabPointerOwnerEvents = (em & EventCode.MaskOwnerGrabButton) != 0;
-                        grabPointerSynchronous = false;
-                        grabKeyboardSynchronous = false;
+                        this.grabPointerClient = c;
+                        this.grabPointerWindow = ew;
+                        this.grabPointerPassive = false;
+                        this.grabPointerAutomatic = true;
+                        this.grabPointerTime = this.xServer.GetTimestamp();
+                        this.grabCursor = ew.GetCursor();
+                        this.grabConfineWindow = null;
+                        this.grabEventMask = em & EventCode.MaskAllPointer;
+                        this.grabPointerOwnerEvents = (em & EventCode.MaskOwnerGrabButton) != 0;
+                        this.grabPointerSynchronous = false;
+                        this.grabKeyboardSynchronous = false;
                         UpdatePointer(1);
                     }
                 }
             }
             else
             {
-                if (!grabPointerSynchronous)
+                if (!this.grabPointerSynchronous)
                 {
-                    grabPointerWindow.GrabButtonNotify(pressed, motionX, motionY, button, grabEventMask,
-                                                       grabPointerClient, grabPointerOwnerEvents);
+                    this.grabPointerWindow.GrabButtonNotify(pressed, this.motionX, this.motionY, button, this.grabEventMask,
+                                                       this.grabPointerClient, this.grabPointerOwnerEvents);
                 } // Else need to queue the events for later.
 
-                if (grabPointerAutomatic && !pressed && (buttons & 0xff00) == 0)
+                if (this.grabPointerAutomatic && !pressed && (this.buttons & 0xff00) == 0)
                 {
-                    grabPointerClient = null;
-                    grabPointerWindow = null;
-                    grabCursor = null;
-                    grabConfineWindow = null;
+                    this.grabPointerClient = null;
+                    this.grabPointerWindow = null;
+                    this.grabCursor = null;
+                    this.grabConfineWindow = null;
                     UpdatePointer(2);
                 }
             }
@@ -595,7 +597,7 @@ namespace TX11Business.UIDependent
             //if ((state & XKeyEvent.META_ALT_ON) != 0)
             //    mask |= 8; // Mod1.
 
-            buttons = (buttons & 0xff00) | mask;
+            this.buttons = (this.buttons & 0xff00) | mask;
         }
 
         /**
@@ -606,63 +608,63 @@ namespace TX11Business.UIDependent
 	 */
         internal void NotifyKeyPressedReleased(int keycode, bool pressed)
         {
-            if (grabKeyboardWindow == null && focusWindow == null)
+            if (this.grabKeyboardWindow == null && this.focusWindow == null)
                 return;
 
-            var kb = xServer.GetKeyboard();
+            var kb = this.xServer.GetKeyboard();
 
             keycode = kb.TranslateToXKeycode(keycode);
 
-            if (pressed && grabKeyboardWindow == null)
+            if (pressed && this.grabKeyboardWindow == null)
             {
-                var pkg = focusWindow.FindPassiveKeyGrab(keycode, buttons & 0xff, null);
+                var pkg = this.focusWindow.FindPassiveKeyGrab(keycode, this.buttons & 0xff, null);
 
                 if (pkg == null)
                 {
-                    var w = rootWindow.WindowAtPoint(motionX, motionY);
+                    var w = this.rootWindow.WindowAtPoint(this.motionX, this.motionY);
 
-                    if (w.IsAncestor(focusWindow))
-                        pkg = w.FindPassiveKeyGrab(keycode, buttons & 0xff, null);
+                    if (w.IsAncestor(this.focusWindow))
+                        pkg = w.FindPassiveKeyGrab(keycode, this.buttons & 0xff, null);
                 }
 
                 if (pkg != null)
                 {
-                    grabKeyboardPassiveGrab = pkg;
-                    grabKeyboardClient = pkg.GetGrabClient();
-                    grabKeyboardWindow = pkg.GetGrabWindow();
-                    grabKeyboardTime = xServer.GetTimestamp();
-                    grabKeyboardOwnerEvents = pkg.GetOwnerEvents();
-                    grabPointerSynchronous = pkg.GetPointerSynchronous();
-                    grabKeyboardSynchronous = pkg.GetKeyboardSynchronous();
+                    this.grabKeyboardPassiveGrab = pkg;
+                    this.grabKeyboardClient = pkg.GetGrabClient();
+                    this.grabKeyboardWindow = pkg.GetGrabWindow();
+                    this.grabKeyboardTime = this.xServer.GetTimestamp();
+                    this.grabKeyboardOwnerEvents = pkg.GetOwnerEvents();
+                    this.grabPointerSynchronous = pkg.GetPointerSynchronous();
+                    this.grabKeyboardSynchronous = pkg.GetKeyboardSynchronous();
                 }
             }
 
-            if (grabKeyboardWindow == null)
+            if (this.grabKeyboardWindow == null)
             {
-                var w = rootWindow.WindowAtPoint(motionX, motionY);
+                var w = this.rootWindow.WindowAtPoint(this.motionX, this.motionY);
 
-                if (w.IsAncestor(focusWindow))
-                    w.KeyNotify(pressed, motionX, motionY, keycode, null);
+                if (w.IsAncestor(this.focusWindow))
+                    w.KeyNotify(pressed, this.motionX, this.motionY, keycode, null);
                 else
-                    focusWindow.KeyNotify(pressed, motionX, motionY, keycode, null);
+                    this.focusWindow.KeyNotify(pressed, this.motionX, this.motionY, keycode, null);
             }
-            else if (!grabKeyboardSynchronous)
+            else if (!this.grabKeyboardSynchronous)
             {
-                grabKeyboardWindow.GrabKeyNotify(pressed, motionX, motionY, keycode, grabKeyboardClient,
-                                                 grabKeyboardOwnerEvents);
+                this.grabKeyboardWindow.GrabKeyNotify(pressed, this.motionX, this.motionY, keycode, this.grabKeyboardClient,
+                                                 this.grabKeyboardOwnerEvents);
             } // Else need to queue keyboard events.
 
             kb.UpdateKeymap(keycode, pressed);
 
-            if (!pressed && grabKeyboardPassiveGrab != null)
+            if (!pressed && this.grabKeyboardPassiveGrab != null)
             {
-                int rk = grabKeyboardPassiveGrab.GetKey();
+                int rk = this.grabKeyboardPassiveGrab.GetKey();
 
                 if (rk == 0 || rk == keycode)
                 {
-                    grabKeyboardPassiveGrab = null;
-                    grabKeyboardClient = null;
-                    grabKeyboardWindow = null;
+                    this.grabKeyboardPassiveGrab = null;
+                    this.grabKeyboardClient = null;
+                    this.grabKeyboardWindow = null;
                 }
             }
         }
@@ -675,9 +677,9 @@ namespace TX11Business.UIDependent
 	 */
         internal bool OnTouchEvent(int x, int y)
         {
-            lock (xServer)
+            lock (this.xServer)
             {
-                if (rootWindow == null)
+                if (this.rootWindow == null)
                     return false;
 
                 Blank(false); // Reset the screen saver.
@@ -696,9 +698,9 @@ namespace TX11Business.UIDependent
 	 */
         internal bool OnKeyDown(int keycode, XKeyEvent e)
         {
-            lock (xServer)
+            lock (this.xServer)
             {
-                if (rootWindow == null)
+                if (this.rootWindow == null)
                     return false;
 
                 Blank(false); // Reset the screen saver.
@@ -753,9 +755,9 @@ namespace TX11Business.UIDependent
 	 */
         internal bool OnKeyUp(int keycode, XKeyEvent e)
         {
-            lock (xServer)
+            lock (this.xServer)
             {
-                if (rootWindow == null)
+                if (this.rootWindow == null)
                     return false;
 
                 Blank(false); // Reset the screen saver.
@@ -809,17 +811,17 @@ namespace TX11Business.UIDependent
 	 */
         internal void Write(InputOutput io)
         {
-            var vis = xServer.GetRootVisual();
+            var vis = this.xServer.GetRootVisual();
 
-            io.WriteInt(rootWindow.GetId()); // Root window ID.
-            io.WriteInt(defaultColormap.GetId()); // Default colormap ID.
-            io.WriteInt(defaultColormap.GetWhitePixel()); // White pixel.
-            io.WriteInt(defaultColormap.GetBlackPixel()); // Black pixel.
+            io.WriteInt(this.rootWindow.GetId()); // Root window ID.
+            io.WriteInt(this.defaultColormap.GetId()); // Default colormap ID.
+            io.WriteInt(this.defaultColormap.GetWhitePixel()); // White pixel.
+            io.WriteInt(this.defaultColormap.GetBlackPixel()); // Black pixel.
             io.WriteInt(0); // Current input masks.
             io.WriteShort((short) GetWidth()); // Width in pixels.
             io.WriteShort((short) GetHeight()); // Height in pixels.
-            io.WriteShort((short) (GetWidth() / pixelsPerMillimeter)); // Width in millimeters.
-            io.WriteShort((short) (GetHeight() / pixelsPerMillimeter)); // Height in millimeters.
+            io.WriteShort((short) (GetWidth() / this.pixelsPerMillimeter)); // Width in millimeters.
+            io.WriteShort((short) (GetHeight() / this.pixelsPerMillimeter)); // Height in millimeters.
             io.WriteShort((short) 1); // Minimum installed maps.
             io.WriteShort((short) 1); // Maximum installed maps.
             io.WriteInt(vis.GetId()); // Root visual ID.
@@ -845,7 +847,7 @@ namespace TX11Business.UIDependent
         internal void WriteInstalledColormaps(Client client)
         {
             var io = client.GetInputOutput();
-            var n = installedColormaps.Size();
+            var n = this.installedColormaps.Size();
 
             lock (io)
             {
@@ -854,7 +856,7 @@ namespace TX11Business.UIDependent
                 io.WriteShort((short) n); // Number of colormaps.
                 io.WritePadBytes(22); // Unused.
 
-                foreach (var cmap in installedColormaps)
+                foreach (var cmap in this.installedColormaps)
                     io.WriteInt(cmap.GetId());
             }
 
@@ -915,12 +917,12 @@ namespace TX11Business.UIDependent
                         if (time == 0)
                             time = now;
 
-                        if (time >= grabPointerTime && time <= now && grabPointerClient == client)
+                        if (time >= this.grabPointerTime && time <= now && this.grabPointerClient == client)
                         {
-                            grabPointerClient = null;
-                            grabPointerWindow = null;
-                            grabCursor = null;
-                            grabConfineWindow = null;
+                            this.grabPointerClient = null;
+                            this.grabPointerWindow = null;
+                            this.grabCursor = null;
+                            this.grabConfineWindow = null;
                             UpdatePointer(2);
                         }
                     }
@@ -995,14 +997,14 @@ namespace TX11Business.UIDependent
                         if (time == 0)
                             time = now;
 
-                        if (grabPointerWindow != null && !grabPointerPassive && grabPointerClient == client &&
-                            time >= grabPointerTime && time <= now && (cid == 0 || c != null))
+                        if (this.grabPointerWindow != null && !this.grabPointerPassive && this.grabPointerClient == client &&
+                            time >= this.grabPointerTime && time <= now && (cid == 0 || c != null))
                         {
-                            grabEventMask = mask;
+                            this.grabEventMask = mask;
                             if (c != null)
-                                grabCursor = c;
+                                this.grabCursor = c;
                             else
-                                grabCursor = grabPointerWindow.GetCursor();
+                                this.grabCursor = this.grabPointerWindow.GetCursor();
                         }
                     }
 
@@ -1033,13 +1035,13 @@ namespace TX11Business.UIDependent
                         if (time == 0)
                             time = now;
 
-                        if (time >= grabKeyboardTime && time <= now)
+                        if (time >= this.grabKeyboardTime && time <= now)
                         {
-                            var pw = rootWindow.WindowAtPoint(motionX, motionY);
+                            var pw = this.rootWindow.WindowAtPoint(this.motionX, this.motionY);
 
-                            Window.FocusInOutNotify(grabKeyboardWindow, focusWindow, pw, rootWindow, 2);
-                            grabKeyboardClient = null;
-                            grabKeyboardWindow = null;
+                            Window.FocusInOutNotify(this.grabKeyboardWindow, this.focusWindow, pw, this.rootWindow, 2);
+                            this.grabKeyboardClient = null;
+                            this.grabKeyboardWindow = null;
                         }
                     }
 
@@ -1097,7 +1099,7 @@ namespace TX11Business.UIDependent
                         if (time == 0)
                             time = now;
 
-                        if (time <= now && time >= grabPointerTime && time >= grabKeyboardTime)
+                        if (time <= now && time >= this.grabPointerTime && time >= this.grabKeyboardTime)
                         {
                             // Release queued events.
                         }
@@ -1126,16 +1128,16 @@ namespace TX11Business.UIDependent
                     {
                         int wid;
 
-                        if (focusWindow == null)
+                        if (this.focusWindow == null)
                             wid = 0;
-                        else if (focusWindow == rootWindow)
+                        else if (this.focusWindow == this.rootWindow)
                             wid = 1;
                         else
-                            wid = focusWindow.GetId();
+                            wid = this.focusWindow.GetId();
 
                         lock (io)
                         {
-                            Util.WriteReplyHeader(client, focusRevertTo);
+                            Util.WriteReplyHeader(client, this.focusRevertTo);
                             io.WriteInt(0); // Reply length.
                             io.WriteInt(wid); // Focus window.
                             io.WritePadBytes(20); // Unused.
@@ -1169,23 +1171,23 @@ namespace TX11Business.UIDependent
             if (wid == 0)
             {
                 // Pointer window.
-                w = rootWindow.WindowAtPoint(motionX, motionY);
+                w = this.rootWindow.WindowAtPoint(this.motionX, this.motionY);
             }
             else if (wid == 1)
             {
                 // Input focus.
-                if (focusWindow == null)
+                if (this.focusWindow == null)
                 {
                     ErrorCode.Write(client, ErrorCode.Window, RequestCode.SendEvent, wid);
                     return;
                 }
 
-                var pw = rootWindow.WindowAtPoint(motionX, motionY);
+                var pw = this.rootWindow.WindowAtPoint(this.motionX, this.motionY);
 
-                if (pw.IsAncestor(focusWindow))
+                if (pw.IsAncestor(this.focusWindow))
                     w = pw;
                 else
-                    w = focusWindow;
+                    w = this.focusWindow;
             }
             else
             {
@@ -1225,7 +1227,7 @@ namespace TX11Business.UIDependent
                     w = w.GetParent();
                     if (w == null)
                         break;
-                    if (wid == 1 && w == focusWindow)
+                    if (wid == 1 && w == this.focusWindow)
                         break;
                 }
             }
@@ -1321,27 +1323,27 @@ namespace TX11Business.UIDependent
             if (time == 0)
                 time = now;
 
-            if (time < grabPointerTime || time > now)
+            if (time < this.grabPointerTime || time > now)
             {
                 status = 2; // Invalid time.
             }
-            else if (grabPointerWindow != null && grabPointerClient != client)
+            else if (this.grabPointerWindow != null && this.grabPointerClient != client)
             {
                 status = 1; // Already grabbed.
             }
             else
             {
-                grabPointerClient = client;
-                grabPointerWindow = w;
-                grabPointerPassive = false;
-                grabPointerAutomatic = false;
-                grabPointerTime = time;
-                grabCursor = c;
-                grabConfineWindow = cw;
-                grabEventMask = mask;
-                grabPointerOwnerEvents = ownerEvents;
-                grabPointerSynchronous = psync;
-                grabKeyboardSynchronous = ksync;
+                this.grabPointerClient = client;
+                this.grabPointerWindow = w;
+                this.grabPointerPassive = false;
+                this.grabPointerAutomatic = false;
+                this.grabPointerTime = time;
+                this.grabCursor = c;
+                this.grabConfineWindow = cw;
+                this.grabEventMask = mask;
+                this.grabPointerOwnerEvents = ownerEvents;
+                this.grabPointerSynchronous = psync;
+                this.grabKeyboardSynchronous = ksync;
             }
 
             lock (io)
@@ -1453,22 +1455,22 @@ namespace TX11Business.UIDependent
             if (time == 0)
                 time = now;
 
-            if (time < grabKeyboardTime || time > now)
+            if (time < this.grabKeyboardTime || time > now)
             {
                 status = 2; // Invalid time.
             }
-            else if (grabKeyboardWindow != null)
+            else if (this.grabKeyboardWindow != null)
             {
                 status = 1; // Already grabbed.
             }
             else
             {
-                grabKeyboardClient = client;
-                grabKeyboardWindow = w;
-                grabKeyboardTime = time;
-                grabKeyboardOwnerEvents = ownerEvents;
-                grabPointerSynchronous = psync;
-                grabKeyboardSynchronous = ksync;
+                this.grabKeyboardClient = client;
+                this.grabKeyboardWindow = w;
+                this.grabKeyboardTime = time;
+                this.grabKeyboardOwnerEvents = ownerEvents;
+                this.grabPointerSynchronous = psync;
+                this.grabKeyboardSynchronous = ksync;
             }
 
             lock (io)
@@ -1481,7 +1483,7 @@ namespace TX11Business.UIDependent
             io.Flush();
 
             if (status == 0)
-                Window.FocusInOutNotify(focusWindow, w, rootWindow.WindowAtPoint(motionX, motionY), rootWindow, 1);
+                Window.FocusInOutNotify(this.focusWindow, w, this.rootWindow.WindowAtPoint(this.motionX, this.motionY), this.rootWindow, 1);
         }
 
         /**
@@ -1538,7 +1540,7 @@ namespace TX11Business.UIDependent
             }
             else if (wid == 1)
             {
-                w = rootWindow;
+                w = this.rootWindow;
                 revertTo = 0;
             }
             else
@@ -1559,15 +1561,15 @@ namespace TX11Business.UIDependent
             if (time == 0)
                 time = now;
 
-            if (time < focusLastChangeTime || time > now)
+            if (time < this.focusLastChangeTime || time > now)
                 return;
 
-            Window.FocusInOutNotify(focusWindow, w, rootWindow.WindowAtPoint(motionX, motionY), rootWindow,
-                                    grabKeyboardWindow == null ? 0 : 3);
+            Window.FocusInOutNotify(this.focusWindow, w, this.rootWindow.WindowAtPoint(this.motionX, this.motionY), this.rootWindow,
+                                    this.grabKeyboardWindow == null ? 0 : 3);
 
-            focusWindow = w;
-            focusRevertTo = revertTo;
-            focusLastChangeTime = time;
+            this.focusWindow = w;
+            this.focusRevertTo = revertTo;
+            this.focusLastChangeTime = time;
         }
 
         public void OnSizeChanged(IXScreen source, Size newSize, Size oldSize)

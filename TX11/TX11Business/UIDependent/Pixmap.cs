@@ -3,7 +3,7 @@ using TX11Business.Compatibility;
 
 namespace TX11Business.UIDependent
 {
-    internal class Pixmap : Resource
+    internal sealed class Pixmap : Resource
     {
         private readonly Drawable drawable;
         private readonly ScreenView screen;
@@ -123,6 +123,12 @@ namespace TX11Business.UIDependent
                     ErrorCode.Write(client, ErrorCode.Implementation, opcode, 0);
                     break;
             }
+        }
+
+        /// <inheritdoc />
+        public override void Dispose()
+        {
+            //Nothing to dispose
         }
 
         /**
