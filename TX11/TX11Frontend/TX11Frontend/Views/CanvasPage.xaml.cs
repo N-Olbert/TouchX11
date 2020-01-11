@@ -26,7 +26,7 @@ namespace TX11Frontend.Views
 
         private System.Drawing.Size oldSize = System.Drawing.Size.Empty;
         private SKSize realSize;
-        private int invalidationPending = 0;
+        private int invalidationPending;
         private bool started;
 
         public CanvasPage()
@@ -51,15 +51,22 @@ namespace TX11Frontend.Views
         {
             if (started)
             {
-                Interlocked.Exchange(ref invalidationPending, 0);
-                var factory = XConnector.GetInstanceOf<IXBitmapFactory>();
-                using (var bitmap = factory.CreateBitmap(e.Info.Width, e.Info.Height))
+                var lockObj = StartupHelper.InvalidationLockObject;
+                if (lockObj != null)
                 {
-                    var canvasFactory = XConnector.GetInstanceOf<IXCanvasFactory>();
-                    using (var canvas = canvasFactory.CreateCanvas(bitmap))
+                    lock (lockObj)
                     {
-                        XConnector.Resolve<IXScreenObserver>()?.OnDraw(this, canvas);
-                        e.Surface.Canvas.DrawBitmap(((XCanvas) canvas).Bitmap, 0, 0);
+                        Interlocked.Exchange(ref this.invalidationPending, 0);
+                        var factory = XConnector.GetInstanceOf<IXBitmapFactory>();
+                        using (var bitmap = factory.CreateBitmap(e.Info.Width, e.Info.Height))
+                        {
+                            var canvasFactory = XConnector.GetInstanceOf<IXCanvasFactory>();
+                            using (var canvas = canvasFactory.CreateCanvas(bitmap))
+                            {
+                                XConnector.Resolve<IXScreenObserver>()?.OnDraw(this, canvas);
+                                e.Surface.Canvas.DrawBitmap(((XCanvas) canvas).Bitmap, 0, 0);
+                            }
+                        }
                     }
                 }
             }
@@ -67,7 +74,6 @@ namespace TX11Frontend.Views
 
         private void OnSizeChanged(object sender, EventArgs e)
         {
-            var x = this.CanvasView.Width;
             var newSize = new System.Drawing.Size((int) this.Width, (int) this.Height);
             if (started)
             {

@@ -11,7 +11,6 @@ namespace TX11Frontend.UIConnectorWrapper
     {
         public IXBitmap CreateBitmap(IXBitmap bitmap, int sx, int sy, int width, int height)
         {
-            Console.WriteLine("createBitmap");
             SKBitmap result;
             using (var temp = new SKBitmap(width, height, SKImageInfo.PlatformColorType, SKAlphaType.Unpremul))
             {
