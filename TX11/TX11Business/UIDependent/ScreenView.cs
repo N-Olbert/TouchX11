@@ -1459,7 +1459,7 @@ namespace TX11Business.UIDependent
             {
                 status = 2; // Invalid time.
             }
-            else if (this.grabKeyboardWindow != null)
+            else if (this.grabKeyboardWindow != null && (this.grabKeyboardClient != client))
             {
                 status = 1; // Already grabbed.
             }
