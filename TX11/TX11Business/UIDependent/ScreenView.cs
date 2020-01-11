@@ -1,7 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using JetBrains.Annotations;
+using TX11Business.BusinessObjects;
+using TX11Business.BusinessObjects.Events;
 using TX11Shared;
 using TX11Shared.Graphics;
 using TX11Shared.Keyboard;
@@ -12,24 +15,30 @@ namespace TX11Business.UIDependent
     {
         [NotNull]
         private readonly XServer xServer;
-        private readonly int rootId;
+        [NotNull]
         private readonly Window rootWindow;
-        private Colormap defaultColormap;
+        [NotNull]
         private readonly List<Colormap> installedColormaps;
+        [NotNull]
+        private readonly IXPaint paint;
+        [NotNull, ItemNotNull]
+        private readonly Queue<PendingPointerEvent> pendingPointerEvents;
+        [NotNull, ItemNotNull]
+        private readonly Queue<PendingKeyboardEvent> pendingKeyboardEvents;
         private readonly float pixelsPerMillimeter;
+        private readonly int rootId;
 
+        private Colormap defaultColormap;
         private Cursor currentCursor;
         private int currentCursorX;
         private int currentCursorY;
         private Cursor drawnCursor;
-        private int drawnCursorX;
-        private int drawnCursorY;
         private Window motionWindow;
         private int motionX;
         private int motionY;
         private int buttons;
         private bool isBlanked;
-        private readonly IXPaint paint;
+        
 
         private Client grabPointerClient;
         private Window grabPointerWindow;
@@ -38,11 +47,13 @@ namespace TX11Business.UIDependent
         private bool grabPointerSynchronous;
         private bool grabPointerPassive;
         private bool grabPointerAutomatic;
+        private bool _grabPointerFreezeNextEvent = false;
         private Client grabKeyboardClient;
         private Window grabKeyboardWindow;
         private int grabKeyboardTime;
         private bool grabKeyboardOwnerEvents;
         private bool grabKeyboardSynchronous;
+        private bool _grabKeyboardFreezeNextEvent = false;
         private Cursor grabCursor;
         private Window grabConfineWindow;
         private int grabEventMask;
@@ -51,6 +62,7 @@ namespace TX11Business.UIDependent
         private Window focusWindow;
         private byte focusRevertTo; // 0=None, 1=Root, 2=Parent.
         private int focusLastChangeTime;
+
 
         /**
 	 * Constructor.
@@ -69,8 +81,11 @@ namespace TX11Business.UIDependent
             this.pixelsPerMillimeter = 3.779527f;
             this.paint = Util.GetPaint();
 
+            this.pendingPointerEvents = new Queue<PendingPointerEvent>();
+            this.pendingKeyboardEvents = new Queue<PendingKeyboardEvent>();
+
             this.rootWindow = new Window(this.rootId, this.xServer, null, this, null, 0, 0, GetWidth(), GetHeight(), 0,
-                                    false, true);
+                                         false, true);
             this.xServer.AddResource(this.rootWindow);
 
             this.currentCursor = this.rootWindow.GetCursor();
@@ -311,7 +326,8 @@ namespace TX11Business.UIDependent
                 }
 
                 this.focusRevertTo = 0;
-                Window.FocusInOutNotify(w, this.focusWindow, pw, this.rootWindow, this.grabKeyboardWindow == null ? 0 : 3);
+                Window.FocusInOutNotify(w, this.focusWindow, pw, this.rootWindow,
+                                        this.grabKeyboardWindow == null ? 0 : 3);
             }
         }
 
@@ -337,12 +353,11 @@ namespace TX11Business.UIDependent
 
                 this.paint.Reset();
                 this.rootWindow.Draw(canvas, this.paint);
-                canvas.DrawBitmap(this.currentCursor.GetBitmap(), this.currentCursorX - this.currentCursor.GetHotspotX(),
+                canvas.DrawBitmap(this.currentCursor.GetBitmap(),
+                                  this.currentCursorX - this.currentCursor.GetHotspotX(),
                                   this.currentCursorY - this.currentCursor.GetHotspotY(), null);
 
                 this.drawnCursor = this.currentCursor;
-                this.drawnCursorX = this.currentCursorX;
-                this.drawnCursorY = this.currentCursorY;
             }
         }
 
@@ -357,8 +372,6 @@ namespace TX11Business.UIDependent
 	 */
         protected void OnSizeChanged(int width, int height, int oldWidth, int oldHeight)
         {
-            this.drawnCursorX = this.currentCursorX;
-            this.drawnCursorY = this.currentCursorY;
             this.motionX = this.currentCursorX;
             this.motionY = this.currentCursorY;
             this.motionWindow = this.rootWindow;
@@ -376,11 +389,7 @@ namespace TX11Business.UIDependent
         {
             if (this.drawnCursor != null)
             {
-                var left = this.drawnCursorX - this.drawnCursor.GetHotspotX();
-                var top = this.drawnCursorY - this.drawnCursor.GetHotspotY();
-                var bm = this.drawnCursor.GetBitmap();
-
-                PostInvalidate(left, top, left + bm.Width, top + bm.Height);
+                PostInvalidate();
                 this.drawnCursor = null;
             }
 
@@ -389,11 +398,7 @@ namespace TX11Business.UIDependent
             this.currentCursorY = y;
 
             {
-                var left = x - cursor.GetHotspotX();
-                var top = y - cursor.GetHotspotY();
-                var bm = cursor.GetBitmap();
-
-                PostInvalidate(left, top, left + bm.Width, top + bm.Height);
+                PostInvalidate();
             }
         }
 
@@ -452,9 +457,14 @@ namespace TX11Business.UIDependent
                 }
                 else if (!this.grabPointerSynchronous)
                 {
-                    w.GrabMotionNotify(x, y, this.buttons & 0xff00, this.grabEventMask, this.grabPointerClient,
-                                       this.grabPointerOwnerEvents);
-                } // Else need to queue the events for later.
+                    CallGrabMotionNotify(w, x, y, buttons, grabEventMask, grabPointerClient, grabPointerOwnerEvents);
+                }
+                else
+                {
+                    var e = new PendingGrabMotionNotifyEvent(w, x, y, buttons, grabEventMask, grabPointerClient,
+                                                        grabPointerOwnerEvents);
+                    this.pendingPointerEvents.Enqueue(e);
+                }
 
                 this.motionX = x;
                 this.motionY = y;
@@ -532,6 +542,8 @@ namespace TX11Business.UIDependent
                 else
                 {
                     var ew = w.ButtonNotify(pressed, this.motionX, this.motionY, button, null);
+                    ConsiderPointerFreezeNextEvent();
+
                     Client c = null;
 
                     if (pressed && ew != null)
@@ -565,12 +577,20 @@ namespace TX11Business.UIDependent
             }
             else
             {
-                if (!this.grabPointerSynchronous)
+                if (!grabPointerSynchronous)
                 {
-                    this.grabPointerWindow.GrabButtonNotify(pressed, this.motionX, this.motionY, button, this.grabEventMask,
-                                                       this.grabPointerClient, this.grabPointerOwnerEvents);
-                } // Else need to queue the events for later.
+                    CallGrabButtonNotify(grabPointerWindow, pressed, motionX, motionY, button, grabEventMask,
+                                         grabPointerClient, grabPointerOwnerEvents);
 
+                }
+                else
+                {
+                    var e = new PendingGrabButtonNotifyEvent(grabPointerWindow, pressed, motionX, motionY, button,
+                                                        grabEventMask, grabPointerClient, grabPointerOwnerEvents);
+
+                    this.pendingPointerEvents.Enqueue(e);
+                }
+                
                 if (this.grabPointerAutomatic && !pressed && (this.buttons & 0xff00) == 0)
                 {
                     this.grabPointerClient = null;
@@ -647,12 +667,20 @@ namespace TX11Business.UIDependent
                     w.KeyNotify(pressed, this.motionX, this.motionY, keycode, null);
                 else
                     this.focusWindow.KeyNotify(pressed, this.motionX, this.motionY, keycode, null);
+
+                ConsiderKeyboardFreezeNextEvent();
             }
             else if (!this.grabKeyboardSynchronous)
             {
-                this.grabKeyboardWindow.GrabKeyNotify(pressed, this.motionX, this.motionY, keycode, this.grabKeyboardClient,
-                                                 this.grabKeyboardOwnerEvents);
-            } // Else need to queue keyboard events.
+                CallGrabKeyNotify(grabKeyboardWindow, pressed, motionX, motionY, keycode, grabKeyboardClient,
+                                  grabKeyboardOwnerEvents);
+            }
+            else
+            {
+                var e = new PendingGrabKeyNotifyEvent(grabKeyboardWindow, pressed, motionX, motionY, keycode,
+                                                 grabKeyboardClient, grabKeyboardOwnerEvents);
+                this.pendingKeyboardEvents.Enqueue(e);
+            }
 
             kb.UpdateKeymap(keycode, pressed);
 
@@ -997,8 +1025,9 @@ namespace TX11Business.UIDependent
                         if (time == 0)
                             time = now;
 
-                        if (this.grabPointerWindow != null && !this.grabPointerPassive && this.grabPointerClient == client &&
-                            time >= this.grabPointerTime && time <= now && (cid == 0 || c != null))
+                        if (this.grabPointerWindow != null && !this.grabPointerPassive &&
+                            this.grabPointerClient == client && time >= this.grabPointerTime && time <= now &&
+                            (cid == 0 || c != null))
                         {
                             this.grabEventMask = mask;
                             if (c != null)
@@ -1086,25 +1115,7 @@ namespace TX11Business.UIDependent
 
                     break;
                 case RequestCode.AllowEvents:
-                    if (bytesRemaining != 4)
-                    {
-                        io.ReadSkip(bytesRemaining);
-                        ErrorCode.Write(client, ErrorCode.Length, opcode, 0);
-                    }
-                    else
-                    {
-                        var time = io.ReadInt(); // Time.
-                        var now = this.xServer.GetTimestamp();
-
-                        if (time == 0)
-                            time = now;
-
-                        if (time <= now && time >= this.grabPointerTime && time >= this.grabKeyboardTime)
-                        {
-                            // Release queued events.
-                        }
-                    }
-
+                    ProcessAllowEvents(client, opcode, io, bytesRemaining, arg);
                     break;
                 case RequestCode.SetInputFocus:
                     if (bytesRemaining != 8)
@@ -1483,7 +1494,8 @@ namespace TX11Business.UIDependent
             io.Flush();
 
             if (status == 0)
-                Window.FocusInOutNotify(this.focusWindow, w, this.rootWindow.WindowAtPoint(this.motionX, this.motionY), this.rootWindow, 1);
+                Window.FocusInOutNotify(this.focusWindow, w, this.rootWindow.WindowAtPoint(this.motionX, this.motionY),
+                                        this.rootWindow, 1);
         }
 
         /**
@@ -1564,8 +1576,8 @@ namespace TX11Business.UIDependent
             if (time < this.focusLastChangeTime || time > now)
                 return;
 
-            Window.FocusInOutNotify(this.focusWindow, w, this.rootWindow.WindowAtPoint(this.motionX, this.motionY), this.rootWindow,
-                                    this.grabKeyboardWindow == null ? 0 : 3);
+            Window.FocusInOutNotify(this.focusWindow, w, this.rootWindow.WindowAtPoint(this.motionX, this.motionY),
+                                    this.rootWindow, this.grabKeyboardWindow == null ? 0 : 3);
 
             this.focusWindow = w;
             this.focusRevertTo = revertTo;
@@ -1595,6 +1607,100 @@ namespace TX11Business.UIDependent
         public void OnKeyUp(IXScreen source, XKeyEvent e)
         {
             OnKeyUp(e.KeyCode, e);
+        }
+
+        private void ProcessAllowEvents(Client client, byte opcode, 
+                                        [NotNull] InputOutput io, int bytesRemaining, byte mode)
+        {
+            if (bytesRemaining != 4)
+            {
+                io.ReadSkip(bytesRemaining);
+                ErrorCode.Write(client, ErrorCode.Length, opcode, 0);
+                return;
+            }
+            
+            var t = io.ReadInt();
+            var now = this.xServer.GetTimestamp();
+            var time = t == 0 ? now : t;
+            if ((now < time) || (time < this.grabPointerTime) || (time < this.grabKeyboardTime))
+            {
+                return;
+            }
+
+            switch ((AllowEventsMode)mode)
+            {
+                case AllowEventsMode.AsyncPointer:
+                    FlushPendingPointerEvents();
+                    this.grabPointerSynchronous = false;
+                    this._grabPointerFreezeNextEvent = false;
+                    break;
+                case AllowEventsMode.SyncPointer:
+                    FlushPendingPointerEvents();
+                    this.grabPointerSynchronous = false;
+                    this._grabPointerFreezeNextEvent = true;
+                    break;
+                case AllowEventsMode.AsyncKeyboard:
+                    FlushPendingKeyboardEvents();
+                    this.grabKeyboardSynchronous = false;
+                    this._grabKeyboardFreezeNextEvent = false;
+                    break;
+                case AllowEventsMode.SyncKeyboard:
+                    FlushPendingKeyboardEvents();
+                    this.grabKeyboardSynchronous = false;
+                    this._grabKeyboardFreezeNextEvent = true;
+                    break;
+                case AllowEventsMode.AsyncBoth:
+                case AllowEventsMode.SyncBoth:
+                case AllowEventsMode.ReplayPointer:
+                case AllowEventsMode.ReplayKeyboard:
+                    Debug.WriteLine($"Unsupported AllowEvents mode: {mode}");
+                    ErrorCode.Write(client, ErrorCode.Implementation, opcode, 0);
+                    break;
+                default:
+                    ErrorCode.Write(client, ErrorCode.Value, opcode, 0);
+                    break;
+            }
+        }
+
+        private void ConsiderPointerFreezeNextEvent()
+        {
+            this.grabPointerSynchronous = this._grabPointerFreezeNextEvent;
+        }
+
+        private void ConsiderKeyboardFreezeNextEvent()
+        {
+            this.grabKeyboardSynchronous = this._grabKeyboardFreezeNextEvent;
+        }
+
+        public void CallGrabButtonNotify([NotNull] Window w, bool pressed, int motionX, int motionY, int button,
+            int grabEventMask, Client grabPointerClient, bool grabPointerOwnerEvents)
+        {
+            w.GrabButtonNotify(pressed, motionX, motionY, button, grabEventMask, grabPointerClient,
+                               grabPointerOwnerEvents);
+            ConsiderPointerFreezeNextEvent();
+        }
+
+        internal void CallGrabMotionNotify([NotNull] Window w, int x, int y, int buttons, int grabEventMask,
+            Client grabPointerClient, bool grabPointerOwnerEvents)
+        {
+            w.GrabMotionNotify(x, y, buttons & 0xff00, grabEventMask, grabPointerClient, grabPointerOwnerEvents);
+        }
+
+        internal void CallGrabKeyNotify([NotNull] Window w, bool pressed, int motionX, int motionY, int keycode,
+            Client grabKeyboardClient, bool grabKeyboardOwnerEvents)
+        {
+            w.GrabKeyNotify(pressed, motionX, motionY, keycode, grabKeyboardClient, grabKeyboardOwnerEvents);
+            ConsiderKeyboardFreezeNextEvent();
+        }
+
+        private void FlushPendingPointerEvents()
+        {
+            PendingEvent.FlushEvents(this.pendingPointerEvents, this);
+        }
+
+        private void FlushPendingKeyboardEvents()
+        {
+            PendingEvent.FlushEvents(this.pendingKeyboardEvents, this);
         }
     }
 }
