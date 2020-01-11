@@ -1,0 +1,7 @@
+﻿[*.cs]
+
+# CS0652: Der Vergleich zu einer integralen Konstante ist nutzlos; die Konstante befindet sich außerhalb des zulässigen Bereichs für den Typ
+dotnet_diagnostic.CS0652.severity = error
+
+# IDE0004: Nicht erforderliche Umwandlung entfernen
+dotnet_diagnostic.IDE0004.severity = none

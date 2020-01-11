@@ -1,0 +1,5 @@
+﻿All images were created by Matt Kwahn during the creation of his "Android X server"-project and were licensed under MIT-License.
+For further info see:
+- https://my20percent.wordpress.com/2012/02/27/android-x-server/
+- https://code.google.com/archive/p/android-xserver/
+- https://github.com/mattkwan-zz/android-xserver

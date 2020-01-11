@@ -1,0 +1,6 @@
+﻿This project is heavily based upon the work of Matt Kwahn's "Android X server"-project which is licensed under MIT-License.
+
+For further info see:
+- https://my20percent.wordpress.com/2012/02/27/android-x-server/
+- https://code.google.com/archive/p/android-xserver/
+- https://github.com/mattkwan-zz/android-xserver

@@ -1,0 +1,4 @@
+﻿Why does this WPF app exist if there is already a UWP app?
+	- Mostly because of debugging reasons! Due to network isolation you cannot recieve any incomming connections from the same computer within any UWP app.
+	 This makes debugging a pain, as you always need two pcs to debug - not even a vm works.
+	 WPF doesn not have such restrictions.

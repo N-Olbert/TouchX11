@@ -1,0 +1,191 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <NeutralLanguage>en</NeutralLanguage>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..//bin</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Images\xc_arrow.png" />
+    <None Remove="Images\xc_based_arrow_down.png" />
+    <None Remove="Images\xc_based_arrow_up.png" />
+    <None Remove="Images\xc_boat.png" />
+    <None Remove="Images\xc_bogosity.png" />
+    <None Remove="Images\xc_bottom_left_corner.png" />
+    <None Remove="Images\xc_bottom_right_corner.png" />
+    <None Remove="Images\xc_bottom_side.png" />
+    <None Remove="Images\xc_bottom_tee.png" />
+    <None Remove="Images\xc_box_spiral.png" />
+    <None Remove="Images\xc_center_ptr.png" />
+    <None Remove="Images\xc_circle.png" />
+    <None Remove="Images\xc_clock.png" />
+    <None Remove="Images\xc_coffee_mug.png" />
+    <None Remove="Images\xc_cross.png" />
+    <None Remove="Images\xc_crosshair.png" />
+    <None Remove="Images\xc_cross_reverse.png" />
+    <None Remove="Images\xc_diamond_cross.png" />
+    <None Remove="Images\xc_dot.png" />
+    <None Remove="Images\xc_dotbox.png" />
+    <None Remove="Images\xc_double_arrow.png" />
+    <None Remove="Images\xc_draft_large.png" />
+    <None Remove="Images\xc_draft_small.png" />
+    <None Remove="Images\xc_draped_box.png" />
+    <None Remove="Images\xc_exchange.png" />
+    <None Remove="Images\xc_fleur.png" />
+    <None Remove="Images\xc_gobbler.png" />
+    <None Remove="Images\xc_gumby.png" />
+    <None Remove="Images\xc_hand1.png" />
+    <None Remove="Images\xc_hand2.png" />
+    <None Remove="Images\xc_heart.png" />
+    <None Remove="Images\xc_icon.png" />
+    <None Remove="Images\xc_iron_cross.png" />
+    <None Remove="Images\xc_leftbutton.png" />
+    <None Remove="Images\xc_left_ptr.png" />
+    <None Remove="Images\xc_left_side.png" />
+    <None Remove="Images\xc_left_tee.png" />
+    <None Remove="Images\xc_ll_angle.png" />
+    <None Remove="Images\xc_lr_angle.png" />
+    <None Remove="Images\xc_man.png" />
+    <None Remove="Images\xc_middlebutton.png" />
+    <None Remove="Images\xc_mouse.png" />
+    <None Remove="Images\xc_pencil.png" />
+    <None Remove="Images\xc_pirate.png" />
+    <None Remove="Images\xc_plus.png" />
+    <None Remove="Images\xc_question_arrow.png" />
+    <None Remove="Images\xc_rightbutton.png" />
+    <None Remove="Images\xc_right_ptr.png" />
+    <None Remove="Images\xc_right_side.png" />
+    <None Remove="Images\xc_right_tee.png" />
+    <None Remove="Images\xc_rtl_logo.png" />
+    <None Remove="Images\xc_sailboat.png" />
+    <None Remove="Images\xc_sb_down_arrow.png" />
+    <None Remove="Images\xc_sb_h_double_arrow.png" />
+    <None Remove="Images\xc_sb_left_arrow.png" />
+    <None Remove="Images\xc_sb_right_arrow.png" />
+    <None Remove="Images\xc_sb_up_arrow.png" />
+    <None Remove="Images\xc_sb_v_double_arrow.png" />
+    <None Remove="Images\xc_shuttle.png" />
+    <None Remove="Images\xc_sizing.png" />
+    <None Remove="Images\xc_spider.png" />
+    <None Remove="Images\xc_spraycan.png" />
+    <None Remove="Images\xc_star.png" />
+    <None Remove="Images\xc_target.png" />
+    <None Remove="Images\xc_tcross.png" />
+    <None Remove="Images\xc_top_left_arrow.png" />
+    <None Remove="Images\xc_top_left_corner.png" />
+    <None Remove="Images\xc_top_right_corner.png" />
+    <None Remove="Images\xc_top_side.png" />
+    <None Remove="Images\xc_top_tee.png" />
+    <None Remove="Images\xc_trek.png" />
+    <None Remove="Images\xc_ul_angle.png" />
+    <None Remove="Images\xc_umbrella.png" />
+    <None Remove="Images\xc_ur_angle.png" />
+    <None Remove="Images\xc_watch.png" />
+    <None Remove="Images\xc_xterm.png" />
+    <None Remove="Images\xc_x_cursor.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Images\xc_arrow.png" />
+    <EmbeddedResource Include="Images\xc_based_arrow_down.png" />
+    <EmbeddedResource Include="Images\xc_based_arrow_up.png" />
+    <EmbeddedResource Include="Images\xc_boat.png" />
+    <EmbeddedResource Include="Images\xc_bogosity.png" />
+    <EmbeddedResource Include="Images\xc_bottom_left_corner.png" />
+    <EmbeddedResource Include="Images\xc_bottom_right_corner.png" />
+    <EmbeddedResource Include="Images\xc_bottom_side.png" />
+    <EmbeddedResource Include="Images\xc_bottom_tee.png" />
+    <EmbeddedResource Include="Images\xc_box_spiral.png" />
+    <EmbeddedResource Include="Images\xc_center_ptr.png" />
+    <EmbeddedResource Include="Images\xc_circle.png" />
+    <EmbeddedResource Include="Images\xc_clock.png" />
+    <EmbeddedResource Include="Images\xc_coffee_mug.png" />
+    <EmbeddedResource Include="Images\xc_cross.png" />
+    <EmbeddedResource Include="Images\xc_crosshair.png" />
+    <EmbeddedResource Include="Images\xc_cross_reverse.png" />
+    <EmbeddedResource Include="Images\xc_diamond_cross.png" />
+    <EmbeddedResource Include="Images\xc_dot.png" />
+    <EmbeddedResource Include="Images\xc_dotbox.png" />
+    <EmbeddedResource Include="Images\xc_double_arrow.png" />
+    <EmbeddedResource Include="Images\xc_draft_large.png" />
+    <EmbeddedResource Include="Images\xc_draft_small.png" />
+    <EmbeddedResource Include="Images\xc_draped_box.png" />
+    <EmbeddedResource Include="Images\xc_exchange.png" />
+    <EmbeddedResource Include="Images\xc_fleur.png" />
+    <EmbeddedResource Include="Images\xc_gobbler.png" />
+    <EmbeddedResource Include="Images\xc_gumby.png" />
+    <EmbeddedResource Include="Images\xc_hand1.png" />
+    <EmbeddedResource Include="Images\xc_hand2.png" />
+    <EmbeddedResource Include="Images\xc_heart.png" />
+    <EmbeddedResource Include="Images\xc_icon.png" />
+    <EmbeddedResource Include="Images\xc_iron_cross.png" />
+    <EmbeddedResource Include="Images\xc_leftbutton.png" />
+    <EmbeddedResource Include="Images\xc_left_ptr.png" />
+    <EmbeddedResource Include="Images\xc_left_side.png" />
+    <EmbeddedResource Include="Images\xc_left_tee.png" />
+    <EmbeddedResource Include="Images\xc_ll_angle.png" />
+    <EmbeddedResource Include="Images\xc_lr_angle.png" />
+    <EmbeddedResource Include="Images\xc_man.png" />
+    <EmbeddedResource Include="Images\xc_middlebutton.png" />
+    <EmbeddedResource Include="Images\xc_mouse.png" />
+    <EmbeddedResource Include="Images\xc_pencil.png" />
+    <EmbeddedResource Include="Images\xc_pirate.png" />
+    <EmbeddedResource Include="Images\xc_plus.png" />
+    <EmbeddedResource Include="Images\xc_question_arrow.png" />
+    <EmbeddedResource Include="Images\xc_rightbutton.png" />
+    <EmbeddedResource Include="Images\xc_right_ptr.png" />
+    <EmbeddedResource Include="Images\xc_right_side.png" />
+    <EmbeddedResource Include="Images\xc_right_tee.png" />
+    <EmbeddedResource Include="Images\xc_rtl_logo.png" />
+    <EmbeddedResource Include="Images\xc_sailboat.png" />
+    <EmbeddedResource Include="Images\xc_sb_down_arrow.png" />
+    <EmbeddedResource Include="Images\xc_sb_h_double_arrow.png" />
+    <EmbeddedResource Include="Images\xc_sb_left_arrow.png" />
+    <EmbeddedResource Include="Images\xc_sb_right_arrow.png" />
+    <EmbeddedResource Include="Images\xc_sb_up_arrow.png" />
+    <EmbeddedResource Include="Images\xc_sb_v_double_arrow.png" />
+    <EmbeddedResource Include="Images\xc_shuttle.png" />
+    <EmbeddedResource Include="Images\xc_sizing.png" />
+    <EmbeddedResource Include="Images\xc_spider.png" />
+    <EmbeddedResource Include="Images\xc_spraycan.png" />
+    <EmbeddedResource Include="Images\xc_star.png" />
+    <EmbeddedResource Include="Images\xc_target.png" />
+    <EmbeddedResource Include="Images\xc_tcross.png" />
+    <EmbeddedResource Include="Images\xc_top_left_arrow.png" />
+    <EmbeddedResource Include="Images\xc_top_left_corner.png" />
+    <EmbeddedResource Include="Images\xc_top_right_corner.png" />
+    <EmbeddedResource Include="Images\xc_top_side.png" />
+    <EmbeddedResource Include="Images\xc_top_tee.png" />
+    <EmbeddedResource Include="Images\xc_trek.png" />
+    <EmbeddedResource Include="Images\xc_ul_angle.png" />
+    <EmbeddedResource Include="Images\xc_umbrella.png" />
+    <EmbeddedResource Include="Images\xc_ur_angle.png" />
+    <EmbeddedResource Include="Images\xc_watch.png" />
+    <EmbeddedResource Include="Images\xc_xterm.png" />
+    <EmbeddedResource Include="Images\xc_x_cursor.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Resources.ResourceManager" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Localization\Strings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Localization\Strings.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>
