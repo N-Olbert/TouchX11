@@ -44,7 +44,7 @@ namespace TX11Frontend.Views
 
         void OnShowKeyboardClicked(object sender, EventArgs e)
         {
-            App.Instance.KeyboardController.ShowKeyboard();
+            App.Instance?.KeyboardController?.ShowKeyboard();
         }
 
         private void OnPaintSurface(object sender, SKPaintSurfaceEventArgs e)
@@ -146,6 +146,11 @@ namespace TX11Frontend.Views
 
                 CanvasView.Focus();
             }
+        }
+
+        private void VisualElement_OnFocused(object sender, FocusEventArgs e)
+        {
+            this.CanvasView?.Focus();
         }
     }
 }

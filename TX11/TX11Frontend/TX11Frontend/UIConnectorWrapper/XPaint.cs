@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using JetBrains.Annotations;
 using SkiaSharp;
 using TX11Shared;
@@ -55,23 +56,19 @@ namespace TX11Frontend.UIConnectorWrapper
 
         public float[] GetTextWidths(string s)
         {
-            //var test = "Hello\udc00";
-            //var w = Paint.GetGlyphWidths(test);
-            //if (test.Length != w.Length)
-            //{
-            //    throw new InvalidOperationException("Strange");
-            //}
-
-            if (s.Length > 40000)
+            if (s.Length > 256)
             {
-                // Debugger.Break(); //Here is a bug...
-                var portion1 = s.Substring(0, 40000);
-                var portion2 = s.Substring(40000);
+                //Bug within SkiaSharp, see: https://github.com/mono/SkiaSharp/issues/1093
                 var res = new float[s.Length];
-                var widths1 = Paint.GetGlyphWidths(portion1);
-                var widths2 = Paint.GetGlyphWidths(portion2);
-                Array.Copy(widths1, res, widths1.Length);
-                Array.Copy(widths2, 0, res, 40000, widths2.Length);
+                for (var index = 0; index < s.Length; index++)
+                {
+                    var c = s[index];
+                    using (var newPaint = new SKPaint())
+                    {
+                        res[index] = newPaint.GetGlyphWidths(c.ToString(CultureInfo.InvariantCulture))[0];
+                    }
+                }
+
                 return res;
             }
 

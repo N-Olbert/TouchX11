@@ -1,5 +1,8 @@
 ﻿using System;
+using JetBrains.Annotations;
+using TX11Business.BusinessObjects.Keyboard;
 using TX11Business.Compatibility;
+using TX11Shared;
 using TX11Shared.Keyboard;
 
 namespace TX11Business
@@ -12,14 +15,8 @@ namespace TX11Business
         private int[] keyboardMapping;
         private readonly byte keycodesPerModifier = 2;
         private readonly byte[] keymap = new byte[32];
-
-        private readonly byte[] modifierMapping = new byte[]
-        {
-            XKeyEvent.AttrKeycodeShiftLeft, XKeyEvent.AttrKeycodeShiftRight,
-            0, 0, 0, 0,
-            XKeyEvent.AttrKeycodeAltLeft, XKeyEvent.AttrKeycodeShiftRight,
-            0, 0, 0, 0, 0, 0, 0, 0
-        };
+        [NotNull]
+        private readonly ModifierMapping modifierMapping;
 
         private const int DefaultBellPercent = 50;
         private int bellPercent = DefaultBellPercent;
@@ -53,15 +50,18 @@ namespace TX11Business
             var idx = 0;
             var map = new int[256 * kpk];
 
-            //ToDO
-            //KeyCharacterMap kcm = KeyCharacterMap.load(
-            //								KeyCharacterMap.BUILT_IN_KEYBOARD);
+            var keyMapper = XConnector.GetInstanceOf<IXKeyCharMapper>();
+            this.modifierMapping = new ModifierMapping();
+            this.modifierMapping.SetShiftMapping(keyMapper.KeycodeShiftLeft, keyMapper.KeycodeShiftRight);
+            this.modifierMapping.SetControlMapping(keyMapper.KeycodeCtrlLeft, keyMapper.KeycodeCtrlRight);
+            this.modifierMapping.SetMod1Mapping(keyMapper.KeycodeAltLeft, keyMapper.KeycodeAltRight);
 
+            var mapper = XConnector.GetInstanceOf<IXKeyCharMapper>();
             for (var i = 0; i < 256; i++)
             {
-                int c1 = i.AsChar(); // kcm.get(i, 0);
-                int c2 = i.AsChar(); //kcm.get(i, XKeyEvent.META_SHIFT_ON);
-                int c3 = i.AsChar(); //kcm.get(i, XKeyEvent.META_ALT_ON);
+                int c1 = mapper.GetMappedChar(new XKeyEvent(i, false, false, false));
+                int c2 = mapper.GetMappedChar(new XKeyEvent(i, true, false, false));
+                int c3 = mapper.GetMappedChar(new XKeyEvent(i, false, true, false));
 
                 map[idx++] = c1;
                 map[idx++] = c2;
@@ -79,8 +79,8 @@ namespace TX11Business
             if (max == 0)
                 min = 0;
 
-            if (max < XKeyEvent.AttrKeycodeDel)
-                max = XKeyEvent.AttrKeycodeDel;
+            if (max < keyMapper.DeleteKeyCode)
+                max = keyMapper.DeleteKeyCode;
 
             minimumKeycode = min;
             numKeycodes = max - min + 1;
@@ -90,9 +90,9 @@ namespace TX11Business
             keyboardMapping = new int[kpk * numKeycodes];
             Array.Copy(map, min * kpk, keyboardMapping, 0, keyboardMapping.Length);
 
-            keyboardMapping[(XKeyEvent.AttrKeycodeDel - min) * kpk] = 127;
-            keyboardMapping[(XKeyEvent.AttrKeycodeAltLeft - min) * kpk] = 0xff7e;
-            keyboardMapping[(XKeyEvent.AttrKeycodeAltRight - min) * kpk] = 0xff7e;
+            keyboardMapping[(keyMapper.DeleteKeyCode - min) * kpk] = 127;
+            keyboardMapping[(keyMapper.KeycodeAltLeft - min) * kpk] = 0xff7e;
+            keyboardMapping[(keyMapper.KeycodeAltRight - min) * kpk] = 0xff7e;
         }
 
         /**
@@ -157,6 +157,11 @@ namespace TX11Business
             Array.Copy(this.keymap, 1, keymap, 0, 31);
 
             return keymap;
+        }
+
+        internal int GetModifierMask(XKeyEvent e, bool pressed)
+        {
+            return this.modifierMapping.GetModifierMask(e, pressed);
         }
 
         /**

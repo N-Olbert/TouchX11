@@ -9,18 +9,18 @@
              x:Class="TX11Frontend.Views.CanvasPage"
              Title="{Binding Title}"
              x:Name="BrowseItemsPage"
-             SizeChanged="OnSizeChanged">
+             SizeChanged="OnSizeChanged" Focused="VisualElement_OnFocused">
 
     <ContentPage.ToolbarItems>
         <ToolbarItem x:Name="ShowKeyBoard" Clicked="OnShowKeyboardClicked" />
     </ContentPage.ToolbarItems>
 
-    <StackLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+    <StackLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Focused="VisualElement_OnFocused">
         <Button x:Name="StartButton" Clicked="StartButton_OnClicked" Text="Start" />
         <platformSpecific:XCanvasView x:Name="CanvasView" PaintSurface="OnPaintSurface"
                                       HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand"
                                       Touched="CanvasView_OnTouched" KeyDown="CanvasView_OnKeyDown"
-                                      KeyUp="CanvasView_OnKeyUp" BackgroundColor="Aqua" IgnorePixelScaling="False" />
+                                      KeyUp="CanvasView_OnKeyUp" IgnorePixelScaling="False" IsVisible="False" />
     </StackLayout>
 
 </ContentPage>

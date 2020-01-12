@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Threading;
 using JetBrains.Annotations;
 using TX11Business.BusinessObjects;
 using TX11Business.BusinessObjects.Events;
@@ -608,16 +609,10 @@ namespace TX11Business.UIDependent
 	 * @param pressed	True if pressed, false if released.
 	 * @param state	Current state of the modifier keys.
 	 */
-        private void UpdateModifiers(bool pressed, int state)
+        private void UpdateModifiers(XKeyEvent keyEvent, bool pressed)
         {
-            var mask = 0;
-
-            //if ((state & XKeyEvent.META_SHIFT_ON) != 0)
-            //    mask |= 1; // Shift.
-            //if ((state & XKeyEvent.META_ALT_ON) != 0)
-            //    mask |= 8; // Mod1.
-
-            this.buttons = (this.buttons & 0xff00) | mask;
+            var modifierMask = this.xServer.GetKeyboard().GetModifierMask(keyEvent, pressed);
+            this.buttons = (this.buttons & 0xff00) | modifierMask;
         }
 
         /**
@@ -728,47 +723,25 @@ namespace TX11Business.UIDependent
         {
             lock (this.xServer)
             {
-                if (this.rootWindow == null)
-                    return false;
-
                 Blank(false); // Reset the screen saver.
 
-                var sendEvent = false;
-
-                switch (keycode)
+                if (e.IsLeftClick)
                 {
-                    case XKeyEvent.AttrKeycodeBack:
-                    case XKeyEvent.AttrKeycodeMenu:
-                        return false;
-                    case XKeyEvent.AttrKeycodeDpadLeft:
-                    case XKeyEvent.AttrKeycodeDpadCenter:
-                    case XKeyEvent.AttrKeycodeVolumeUp:
-                    case XKeyEvent.AttrKeycodeLeftClickDown:
-                        UpdatePointerButtons(1, true);
-                        break;
-                    case XKeyEvent.AttrKeycodeDpadUp:
-                    case XKeyEvent.AttrKeycodeDpadDown:
-                        UpdatePointerButtons(2, true);
-                        break;
-                    case XKeyEvent.AttrKeycodeDpadRight:
-                    case XKeyEvent.AttrKeycodeVolumeDown:
-                    case XKeyEvent.AttrKeycodeRightClickDown:
-                        UpdatePointerButtons(3, true);
-                        break;
-                    case XKeyEvent.AttrKeycodeShiftLeft:
-                    case XKeyEvent.AttrKeycodeShiftRight:
-                    case XKeyEvent.AttrKeycodeAltLeft:
-                    case XKeyEvent.AttrKeycodeAltRight:
-                        //updateModifiers(true, e.getMetaState());
-                        sendEvent = true;
-                        break;
-                    default:
-                        sendEvent = true;
-                        break;
+                    UpdatePointerButtons(1, true);
                 }
-
-                if (sendEvent)
+                else if (e.IsRightClick)
+                {
+                    UpdatePointerButtons(3, true);
+                }
+                else if (e.IsAltPressed || e.IsShiftPressed || e.IsControlPressed)
+                {
+                    UpdateModifiers(e, true);
                     NotifyKeyPressedReleased(keycode, true);
+                }
+                else
+                {
+                    NotifyKeyPressedReleased(keycode, true);
+                }
             }
 
             return true;
@@ -785,47 +758,24 @@ namespace TX11Business.UIDependent
         {
             lock (this.xServer)
             {
-                if (this.rootWindow == null)
-                    return false;
-
                 Blank(false); // Reset the screen saver.
-
-                var sendEvent = false;
-
-                switch (keycode)
+                if (e.IsLeftClick)
                 {
-                    case XKeyEvent.AttrKeycodeBack:
-                    case XKeyEvent.AttrKeycodeMenu:
-                        return false;
-                    case XKeyEvent.AttrKeycodeDpadLeft:
-                    case XKeyEvent.AttrKeycodeDpadCenter:
-                    case XKeyEvent.AttrKeycodeVolumeUp:
-                    case XKeyEvent.AttrKeycodeLeftClickUp:
-                        UpdatePointerButtons(1, false);
-                        break;
-                    case XKeyEvent.AttrKeycodeDpadUp:
-                    case XKeyEvent.AttrKeycodeDpadDown:
-                        UpdatePointerButtons(2, false);
-                        break;
-                    case XKeyEvent.AttrKeycodeDpadRight:
-                    case XKeyEvent.AttrKeycodeVolumeDown:
-                    case XKeyEvent.AttrKeycodeRightClickUp:
-                        UpdatePointerButtons(3, false);
-                        break;
-                    case XKeyEvent.AttrKeycodeShiftLeft:
-                    case XKeyEvent.AttrKeycodeShiftRight:
-                    case XKeyEvent.AttrKeycodeAltLeft:
-                    case XKeyEvent.AttrKeycodeAltRight:
-                        //updateModifiers(false, e.getMetaState());
-                        sendEvent = true;
-                        break;
-                    default:
-                        sendEvent = true;
-                        break;
+                    UpdatePointerButtons(1, false);
                 }
-
-                if (sendEvent)
+                else if (e.IsRightClick)
+                {
+                    UpdatePointerButtons(3, false);
+                }
+                else if (e.IsAltPressed || e.IsShiftPressed || e.IsControlPressed)
+                {
+                    UpdateModifiers(e, false);
                     NotifyKeyPressedReleased(keycode, false);
+                }
+                else
+                {
+                    NotifyKeyPressedReleased(keycode, false);
+                }
             }
 
             return true;

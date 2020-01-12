@@ -35,7 +35,7 @@ namespace TX11Frontend.Droid
         {
             if (Element is IXCanvasViewController touchController)
             {
-                touchController.OnKeyDown(new XKeyEvent((int) keyCode));
+                touchController.OnKeyDown(new XKeyEvent((int) keyCode, e.IsShiftPressed, e.IsAltPressed));
             }
 
             return true;
@@ -45,7 +45,7 @@ namespace TX11Frontend.Droid
         {
             if (Element is IXCanvasViewController touchController)
             {
-                touchController.OnKeyUp(new XKeyEvent((int) keyCode));
+                touchController.OnKeyUp(new XKeyEvent((int) keyCode, e.IsShiftPressed, e.IsAltPressed));
             }
 
             return true;

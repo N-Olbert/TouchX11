@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 using TX11Business.Compatibility;
 using TX11Business.Extensions;
 using TX11Business.UIDependent;
@@ -291,6 +292,7 @@ namespace TX11Business
          *
          * @return	The keyboard used by the X server.
          */
+        [NotNull]
         internal Keyboard GetKeyboard()
         {
             return keyboard;

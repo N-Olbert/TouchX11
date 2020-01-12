@@ -5,6 +5,7 @@ using TX11Frontend.UIConnectorWrapper;
 using TX11Frontend.Views;
 using TX11Shared;
 using TX11Shared.Graphics;
+using TX11Shared.Keyboard;
 
 namespace TX11Frontend
 {
@@ -38,6 +39,7 @@ namespace TX11Frontend
             XConnector.RegisterFactoryMethodFor<IXBitmapFactory>(() => new XBitmapFactory());
             XConnector.RegisterFactoryMethodFor<IXCanvasFactory>(() => new XCanvasFactory());
             XConnector.RegisterFactoryMethodFor<IXRegionFactory>(() => new XRegionFactory());
+            XConnector.RegisterFactoryMethodFor<IXKeyCharMapper>(() => DependencyService.Get<IXKeyCharMapper>());
         }
 
         protected override void OnStart()
