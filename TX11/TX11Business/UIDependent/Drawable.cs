@@ -551,7 +551,7 @@ namespace TX11Business.UIDependent
             for (var i = 0; i < pixels.Length; i++)
                 pixels[i] = ((pixels[i] & bitPlane) != 0) ? fg : bg;
 
-            dst.canvas.DrawBitmap(pixels, 0, width, dx, dy, width, height, true, gc.GetPaint());
+            dst.canvas.DrawBitmap(pixels, dx, dy, width, height, gc.GetPaint());
 
             if (dr.GetRessourceType() == Resource.AttrWindow)
                 ((Window) dr).Invalidate(dx, dy, width, height);
@@ -1100,7 +1100,7 @@ namespace TX11Business.UIDependent
             }
 
             io.ReadSkip(pad);
-            this.canvas.DrawBitmap(colors, 0, width, dstX, dstY, width, height, true, gc.GetPaint());
+            this.canvas.DrawBitmap(colors, dstX, dstY, width, height, gc.GetPaint());
 
             return true;
         }

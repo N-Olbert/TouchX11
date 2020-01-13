@@ -14,8 +14,7 @@ namespace TX11Shared.Graphics
 
         void Restore();
 
-        void DrawBitmap(int[] colors, int offset, int stride, float x, float y, int width, int height, bool hasAlpha,
-            IXPaint xPaint);
+        void DrawBitmap(int[] colors, float x, float y, int width, int height, IXPaint xPaint);
 
         void DrawPoints(float[] points, IXPaint paint);
 

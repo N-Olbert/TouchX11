@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using SkiaSharp;
 using TX11Ressources;
 using TX11Shared.Graphics;
@@ -32,43 +33,23 @@ namespace TX11Frontend.UIConnectorWrapper
 
         public IXBitmap CreateBitmap(int[] pixels, int width, int height)
         {
-            if (pixels.Length != width * height)
+            if (pixels == null || pixels.Length != width * height)
             {
                 throw new InvalidOperationException();
             }
 
-            var bm = new SKBitmap(width, height, SKImageInfo.PlatformColorType, SKAlphaType.Unpremul);
-            var colors = new SKColor[width * height];
-            for (int row = 0; row < height; row++)
+            var h = GCHandle.Alloc(pixels, GCHandleType.Pinned);
+            try
             {
-                for (int col = 0; col < width; col++)
-                {
-                    var index = row * width + col;
-                    var value = pixels[index];
-                    colors[index] = value.ToSkColor();
-                }
+                var bitmap = new SKBitmap(width, height, SKImageInfo.PlatformColorType, SKAlphaType.Unpremul);
+                bitmap.InstallPixels(bitmap.Info, h.AddrOfPinnedObject(), bitmap.RowBytes, delegate { h.Free(); }, null);
+                return new XBitmap(bitmap);
             }
-
-            bm.Pixels = colors;
-            return new XBitmap(bm);
-        }
-
-        public IXBitmap createBitmap(int[] pixels, int offset, int width, int height)
-        {
-            var bm = new SKBitmap(width, height, SKImageInfo.PlatformColorType, SKAlphaType.Unpremul);
-            var colors = new SKColor[width * height];
-            for (int row = 0; row < height; row++)
+            catch (Exception)
             {
-                for (int col = 0; col < width; col++)
-                {
-                    var index = row * width + col;
-                    var value = pixels[index];
-                    colors[index + offset] = value.ToSkColor();
-                }
+                h.Free();
+                throw;
             }
-
-            bm.Pixels = colors;
-            return new XBitmap(bm);
         }
 
         public IXBitmap DecodeResource(string resourceName)

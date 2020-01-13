@@ -36,17 +36,23 @@ namespace TX11Frontend.UIConnectorWrapper
 
         public void GetPixels(int[] pixels, int offset, int stride, int x, int y, int width, int height)
         {
+
             var currentPixels = Bitmap.Pixels;
             var rowSize = Bitmap.Info.Width;
-
-            for (int row = 0; row < height; row++)
+            unsafe
             {
-                for (int col = 0; col < width; col++)
+                fixed (SKColor* color = currentPixels)
                 {
-                    var innerindex = row * width + col;
-                    var realIndex = (row + y) * rowSize + (x + col);
-                    var value = currentPixels[realIndex];
-                    pixels[innerindex + offset] = (int) (uint) value;
+                    fixed (int* ptr = pixels)
+                    {
+                        var bytesPerPow = width * Bitmap.BytesPerPixel;
+                        for (int row = 0; row < height; row++)
+                        {
+                            var innerindex = row * width;
+                            var realIndex = (row + y) * rowSize + (x);
+                            Buffer.MemoryCopy(color + realIndex, ptr + innerindex, bytesPerPow, bytesPerPow);
+                        }
+                    }
                 }
             }
         }
