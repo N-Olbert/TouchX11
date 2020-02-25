@@ -60,7 +60,7 @@ namespace TX11Frontend.UIConnectorWrapper
   */
         public bool QuickReject(Rect r)
         {
-            return IsEmpty() || !region.Intersects(r.ToSkRectI());
+            return this.region.QuickReject(r.ToSkRectI());
         }
 
         /**
@@ -86,12 +86,7 @@ namespace TX11Frontend.UIConnectorWrapper
      */
         public void Translate(int dx, int dy)
         {
-            if (!this.region.Bounds.IsEmpty)
-            {
-                var b = this.region.Bounds;
-                var translated = new SKRectI(b.Left + dx, b.Top + dy, b.Right + dx, b.Left + dy);
-                this.region.SetRect(translated);
-            }
+            this.region.Translate(dx, dy);
         }
 
         /**
@@ -100,13 +95,11 @@ namespace TX11Frontend.UIConnectorWrapper
          */
         public void Translate(int dx, int dy, IXRegion dst)
         {
-            //TODO: Review
-            if (!this.region.Bounds.IsEmpty)
+            if (!this.region.IsEmpty)
             {
+                this.region.Translate(dx, dy);
                 var b = this.region.Bounds;
-                var translated = new SKRectI(b.Left + dx, b.Top + dy, b.Right + dx, b.Bottom + dy);
-                this.region.SetRect(translated);
-                ((XRegion) dst).region.SetRect(translated);
+                ((XRegion) dst).region.SetRect(b);
             }
             else
             {

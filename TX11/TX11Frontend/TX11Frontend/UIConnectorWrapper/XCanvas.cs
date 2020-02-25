@@ -60,10 +60,9 @@ namespace TX11Frontend.UIConnectorWrapper
             Canvas.Restore();
         }
 
-        public void DrawBitmap(int[] colors, int offset, int stride, float x, float y, int width, int height,
-            bool hasAlpha, IXPaint xPaint)
+        public void DrawBitmap(int[] colors, float x, float y, int width, int height, IXPaint xPaint)
         {
-            using (var bm = new XBitmapFactory().createBitmap(colors, offset, width, height))
+            using (var bm = new XBitmapFactory().CreateBitmap(colors, width, height))
             {
                 Canvas.DrawBitmap(((XBitmap) bm).Bitmap, x, y, ((XPaint) xPaint).Paint);
             }
@@ -98,13 +97,7 @@ namespace TX11Frontend.UIConnectorWrapper
 
         public void DrawArc(Rect r, float startAngle, float sweepAngle, bool useCenter, IXPaint paint)
         {
-            //https://skia.org/user/api/SkCanvas_Reference#SkCanvas_drawArc (more or less the same)
-            using (var path = new SKPath())
-            {
-                path.AddArc(r.ToSkRectI(), startAngle, sweepAngle);
-                path.Close();
-                Canvas.DrawPath(path, ((XPaint) paint).Paint);
-            }
+            Canvas.DrawArc(r.ToSkRectI(), startAngle, sweepAngle, useCenter, ((XPaint)paint).Paint);
         }
 
         public void DrawText(string s, float x, float y, IXPaint paint)
