@@ -11,23 +11,10 @@ namespace TX11Frontend
 {
     public partial class App : Application
     {
-        /// <summary>
-        /// Gets the app instance (singleton).
-        /// </summary>
-        public static App Instance { get; private set; }
-
-        public IKeyboardController KeyboardController { get; set; }
-
         public App()
         {
-            if (Instance != null)
-            {
-                throw new InvalidOperationException();
-            }
-
             InitializeComponent();
             MainPage = new MainPage();
-            Instance = this;
             PrepareStartup();
         }
 

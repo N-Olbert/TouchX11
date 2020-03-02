@@ -66,6 +66,10 @@
     <Compile Include="AppDelegate.cs" />
     <None Include="Entitlements.plist" />
     <None Include="Info.plist" />
+    <Compile Include="PlatformSpecific\IOSContentPageRenderer.cs" />
+    <Compile Include="PlatformSpecific\IOSKeyboardController.cs" />
+    <Compile Include="PlatformSpecific\IOSKeyCharMapper.cs" />
+    <Compile Include="PlatformSpecific\XCanvasViewRenderer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -136,9 +140,14 @@
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <ItemGroup>
+    <ProjectReference Include="..\..\TX11Shared\TX11Shared.csproj">
+      <Project>{A49ECB54-A3EC-4799-AE83-CB7FEC2A49FE}</Project>
+      <Name>TX11Shared</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TX11Frontend\TX11Frontend.csproj">
       <Project>{4B0DE1D7-395A-4F6A-AC81-E8485BD2BC2E}</Project>
       <Name>TX11Frontend</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
 </Project>
