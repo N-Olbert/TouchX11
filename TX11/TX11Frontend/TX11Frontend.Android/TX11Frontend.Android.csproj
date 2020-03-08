@@ -56,11 +56,12 @@
     <PackageReference Include="Xamarin.Forms" Version="4.5.0.356" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="KeyboardController.cs" />
+    <Compile Include="PlatformSpecific\AndoridKeyCharMapper.cs" />
+    <Compile Include="PlatformSpecific\AndroidKeyboardController.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="XCanvasViewRenderer.cs" />
+    <Compile Include="PlatformSpecific\XCanvasViewRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
@@ -96,5 +97,6 @@
       <Name>TX11Frontend</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
 </Project>

@@ -33,9 +33,9 @@ namespace TX11Frontend.Droid
 
         public override bool OnKeyDown(Keycode keyCode, KeyEvent e)
         {
-            if (Element is IXCanvasViewController touchController)
+            if (e != null && Element is IXCanvasViewController touchController)
             {
-                touchController.OnKeyDown(new XKeyEvent((int) keyCode, e.IsShiftPressed, e.IsAltPressed));
+                touchController.OnKeyDown(new XKeyEvent((int) keyCode, e.IsShiftPressed, e.IsAltPressed, e.IsCtrlPressed));
             }
 
             return true;
@@ -43,9 +43,9 @@ namespace TX11Frontend.Droid
 
         public override bool OnKeyUp(Keycode keyCode, KeyEvent e)
         {
-            if (Element is IXCanvasViewController touchController)
+            if (e != null && Element is IXCanvasViewController touchController)
             {
-                touchController.OnKeyUp(new XKeyEvent((int) keyCode, e.IsShiftPressed, e.IsAltPressed));
+                touchController.OnKeyUp(new XKeyEvent((int) keyCode, e.IsShiftPressed, e.IsAltPressed, e.IsCtrlPressed));
             }
 
             return true;
@@ -53,10 +53,14 @@ namespace TX11Frontend.Droid
 
         public override bool OnTouchEvent(MotionEvent e)
         {
-            if (Element is IXCanvasViewController touchController)
+            if (e != null && Element is IXCanvasViewController touchController)
             {
                 var point = new SKPoint(e.GetX(), e.GetY());
                 touchController.OnTouch(point);
+
+                //Touch is click
+                touchController.OnKeyDown(new XKeyEvent(XKeyEvent.LeftClickDownFakeKeyCode, false, false, false));
+                touchController.OnKeyUp(new XKeyEvent(XKeyEvent.LeftClickDownFakeKeyCode, false, false, false));
             }
 
             return base.OnTouchEvent(e);
