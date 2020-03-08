@@ -1,5 +1,7 @@
 # TouchX11 
-TouchX11 (TX11) is a cross-plattform X11-Server implementation. It is optimized for touch screen use (well, at least a bit :wink:).
+TouchX11 (TX11) is a cross-plattform X11-Server implementation.
+
+It is optimized for touch screen use (well, at least a bit :wink:).
 
 Currently, supported platforms are: iOS, Android, Windows (WPF)
 
