@@ -5,7 +5,7 @@ using TX11Frontend.PlatformSpecific;
 
 namespace TX11Frontend.Droid
 {
-    class KeyboardController : IKeyboardController
+    class KeyboardController : IXKeyboardController
     {
         public void ShowKeyboard()
         {

@@ -14,13 +14,26 @@
     <ContentPage.ToolbarItems>
         <ToolbarItem x:Name="ShowKeyBoard" Clicked="OnShowKeyboardClicked" />
     </ContentPage.ToolbarItems>
-
-    <StackLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Focused="VisualElement_OnFocused">
-        <Button x:Name="StartButton" Clicked="StartButton_OnClicked" Text="Start" />
-        <platformSpecific:XCanvasView x:Name="CanvasView" PaintSurface="OnPaintSurface"
-                                      HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand"
-                                      Touched="CanvasView_OnTouched" KeyDown="CanvasView_OnKeyDown"
-                                      KeyUp="CanvasView_OnKeyUp" IgnorePixelScaling="False" IsVisible="False" />
-    </StackLayout>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0*" />
+            <RowDefinition Height="100*" />
+        </Grid.RowDefinitions>
+        <Editor Grid.Row="0" x:Name="IOS_KeyboardGrabHelperEditor" HeightRequest="0">
+            <Editor.IsVisible>
+                <OnPlatform x:TypeArguments="x:Boolean"
+                                iOS="true" Default="false"/>
+            </Editor.IsVisible>
+        </Editor>
+        <StackLayout Grid.Row="1" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Focused="VisualElement_OnFocused">
+            <Button x:Name="StartButton" Clicked="StartButton_OnClicked" Text="Start" />
+            
+            <platformSpecific:XCanvasView x:Name="CanvasView" PaintSurface="OnPaintSurface"
+                                          HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand"
+                                          Touched="CanvasView_OnTouched" KeyDown="CanvasView_OnKeyDown"
+                                          KeyUp="CanvasView_OnKeyUp" IgnorePixelScaling="False" IsVisible="False" />
+        </StackLayout>
+    </Grid>
+    
 
 </ContentPage>

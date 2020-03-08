@@ -1,6 +1,6 @@
 ﻿namespace TX11Frontend.PlatformSpecific
 {
-    public interface IKeyboardController
+    public interface IXKeyboardController
     {
         void ShowKeyboard();
 

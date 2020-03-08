@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using SkiaSharp;
 using SkiaSharp.Views.Forms;
 using TX11Business.Startup;
+using TX11Frontend.PlatformSpecific;
 using TX11Shared;
 using Xamarin.Forms;
 using TX11Frontend.UIConnectorWrapper;
@@ -44,7 +45,7 @@ namespace TX11Frontend.Views
 
         void OnShowKeyboardClicked(object sender, EventArgs e)
         {
-            App.Instance?.KeyboardController?.ShowKeyboard();
+            DependencyService.Get<IXKeyboardController>()?.ShowKeyboard();
         }
 
         private void OnPaintSurface(object sender, SKPaintSurfaceEventArgs e)

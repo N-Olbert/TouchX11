@@ -24,12 +24,12 @@
 
         public bool IsRightClick => KeyCode == RightClickDownFakeKeyCode || KeyCode == RightClickUpFakeKeyCode;
 
-        public XKeyEvent(int keyCode, bool isShiftPressed, bool isAltPressed, bool isControlClick)
+        public XKeyEvent(int keyCode, bool isShiftPressed, bool isAltPressed, bool isControlPressed)
         {
             KeyCode = keyCode;
             IsShiftPressed = isShiftPressed;
             IsAltPressed = isAltPressed;
-            IsControlPressed = isControlClick;
+            IsControlPressed = isControlPressed;
         }
     }
 }
