@@ -1,6 +1,17 @@
-# TouchX11
- TouchX11 is an cross-plattform X11-Server implementation. Its goal is to be optimized for touch screen use.
+# TouchX11 
+TouchX11 (TX11) is a cross-plattform X11-Server implementation. It is optimized for touch screen use (well, at least a bit :wink:)).
+ Currently, supported platforms are: iOS, Android, Windows (WPF)
 
+
+# Remarks
+While more or less fully functional most code which has not been ported is undocumented. This is due to the fact that this project is part of a time-bound research paper.
+
+
+# Build
+— Clone repro
+— Open solution in Visual Studio (tested with Visual Studio 2019)
+— Set appropriate startup project
+— Build
 
 # Credits
  This project is based upon Matt Kwahn's "Android X server"-project which is licensed under MIT-License.
