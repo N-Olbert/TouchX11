@@ -6,7 +6,7 @@ It is optimised for touch screen use (well, at least a bit :wink:).
 Currently, supported platforms are: iOS, Android, Windows (WPF)
 
 # User manual 
-- A tap on the screen is equal left click
+- A tap on the screen is equal to a left click
 
 - Well... nothing more yet, everything else should be self-explanatory
 
