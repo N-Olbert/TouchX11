@@ -18,6 +18,14 @@ namespace TX11Frontend.iOS.PlatformSpecific
         protected override void OnElementChanged(ElementChangedEventArgs<SKCanvasView> e)
         {
             CanvasInstance = e?.NewElement;
+            if (e?.NewElement is IXCanvasViewController touchController)
+            {
+                //https://stackoverflow.com/questions/3860305/get-ppi-of-iphone-ipad-ipod-touch-at-runtime/7922666
+                //Not entirely correct, but
+                //a) nearly no X11 app uses this value
+                //b) experience shows that bigger values arent really bad for usability (on iPad)
+                touchController.SetDensity(UIScreen.MainScreen.Scale * 160);
+            }
 
             base.OnElementChanged(e);
         }

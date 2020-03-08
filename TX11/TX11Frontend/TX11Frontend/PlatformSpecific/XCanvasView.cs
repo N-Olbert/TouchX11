@@ -12,8 +12,6 @@ namespace TX11Frontend.PlatformSpecific
 
         public event Action<SKPoint> Touched;
 
-        public event Action<SKPoint, SKTouchAction> PerformClick;
-
         public event Action<XKeyEvent> KeyDown;
 
         public event Action<XKeyEvent> KeyUp;
@@ -21,11 +19,6 @@ namespace TX11Frontend.PlatformSpecific
         public void OnTouch(SKPoint point)
         {
             Touched?.Invoke(point);
-        }
-
-        public void OnPerformClick(SKPoint point, SKTouchAction clickAction)
-        {
-            PerformClick?.Invoke(point, clickAction);
         }
 
         public void OnKeyDown(XKeyEvent e)
@@ -47,8 +40,6 @@ namespace TX11Frontend.PlatformSpecific
     public interface IXCanvasViewController : IViewController
     {
         void OnTouch(SKPoint point);
-
-        void OnPerformClick(SKPoint point, SKTouchAction clickAction);
 
         void OnKeyDown(XKeyEvent e);
 
