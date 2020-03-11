@@ -5,15 +5,18 @@ using System.Runtime.InteropServices;
 using SkiaSharp;
 using TX11Ressources;
 using TX11Shared.Graphics;
+using Xamarin.Forms;
 
 namespace TX11Frontend.UIConnectorWrapper
 {
     public class XBitmapFactory : IXBitmapFactory
     {
+        private static SKColorType colorType = Device.RuntimePlatform == Device.iOS ? SKColorType.Bgra8888 :
+            SKImageInfo.PlatformColorType;
         public IXBitmap CreateBitmap(IXBitmap bitmap, int sx, int sy, int width, int height)
         {
             SKBitmap result;
-            using (var temp = new SKBitmap(width, height, SKImageInfo.PlatformColorType, SKAlphaType.Unpremul))
+            using (var temp = new SKBitmap(width, height, colorType, SKAlphaType.Unpremul))
             {
                 using (var canvas = new SKCanvas(temp))
                 {
@@ -28,7 +31,7 @@ namespace TX11Frontend.UIConnectorWrapper
 
         public IXBitmap CreateBitmap(int width, int height)
         {
-            return new XBitmap(new SKBitmap(width, height, SKImageInfo.PlatformColorType, SKAlphaType.Unpremul));
+            return new XBitmap(new SKBitmap(width, height, colorType, SKAlphaType.Unpremul));
         }
 
         public IXBitmap CreateBitmap(int[] pixels, int width, int height)
@@ -41,7 +44,7 @@ namespace TX11Frontend.UIConnectorWrapper
             var h = GCHandle.Alloc(pixels, GCHandleType.Pinned);
             try
             {
-                var bitmap = new SKBitmap(width, height, SKImageInfo.PlatformColorType, SKAlphaType.Unpremul);
+                var bitmap = new SKBitmap(width, height, colorType, SKAlphaType.Unpremul);
                 bitmap.InstallPixels(bitmap.Info, h.AddrOfPinnedObject(), bitmap.RowBytes, delegate { h.Free(); }, null);
                 return new XBitmap(bitmap);
             }
