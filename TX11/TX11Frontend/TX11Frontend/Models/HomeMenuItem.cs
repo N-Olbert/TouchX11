@@ -3,7 +3,8 @@
     public enum MenuItemType
     {
         Canvas,
-        About
+        About,
+        Settings
     }
 
     public class HomeMenuItem

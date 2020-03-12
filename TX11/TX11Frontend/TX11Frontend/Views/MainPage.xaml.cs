@@ -11,7 +11,7 @@ namespace TX11Frontend.Views
     [DesignTimeVisible(false)]
     public partial class MainPage : MasterDetailPage
     {
-        Dictionary<int, NavigationPage> MenuPages = new Dictionary<int, NavigationPage>();
+        private Dictionary<int, NavigationPage> MenuPages { get; } = new Dictionary<int, NavigationPage>();
 
         public MainPage()
         {
@@ -33,6 +33,9 @@ namespace TX11Frontend.Views
                         break;
                     case (int) MenuItemType.About:
                         MenuPages.Add(id, new NavigationPage(new AboutPage()));
+                        break;
+                    case (int)MenuItemType.Settings:
+                        MenuPages.Add(id, new NavigationPage(new SettingsPage()));
                         break;
                 }
             }

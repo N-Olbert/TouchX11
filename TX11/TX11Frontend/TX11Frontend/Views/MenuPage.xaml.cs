@@ -1,4 +1,5 @@
-﻿using TX11Frontend.Models;
+﻿using System;
+using TX11Frontend.Models;
 using System.Collections.Generic;
 using System.ComponentModel;
 using TX11Ressources.Localization;
@@ -11,21 +12,17 @@ namespace TX11Frontend.Views
     [DesignTimeVisible(false)]
     public partial class MenuPage : ContentPage
     {
-        MainPage RootPage
-        {
-            get => Application.Current.MainPage as MainPage;
-        }
-
-        List<HomeMenuItem> menuItems;
+        internal MainPage RootPage => Application.Current.MainPage as MainPage;
 
         public MenuPage()
         {
             InitializeComponent();
 
-            menuItems = new List<HomeMenuItem>
+            var menuItems = new List<HomeMenuItem>
             {
                 new HomeMenuItem {Id = MenuItemType.Canvas, Title = Strings.CanvasPageTitle},
-                new HomeMenuItem {Id = MenuItemType.About, Title = "About"}
+                new HomeMenuItem {Id = MenuItemType.About, Title = Strings.AboutPageTitle},
+                new HomeMenuItem {Id = MenuItemType.Settings, Title = Strings.SettingsPageTitle}
             };
 
             ListViewMenu.ItemsSource = menuItems;
