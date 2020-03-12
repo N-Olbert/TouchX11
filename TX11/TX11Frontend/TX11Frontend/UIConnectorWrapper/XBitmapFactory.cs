@@ -11,16 +11,16 @@ namespace TX11Frontend.UIConnectorWrapper
 {
     public class XBitmapFactory : IXBitmapFactory
     {
-        private static SKColorType colorType = Device.RuntimePlatform == Device.iOS ? SKColorType.Bgra8888 :
-            SKImageInfo.PlatformColorType;
+        private static readonly SKColorType ColorType = Device.RuntimePlatform == Device.iOS ?
+                                                        SKColorType.Bgra8888 : SKImageInfo.PlatformColorType;
         public IXBitmap CreateBitmap(IXBitmap bitmap, int sx, int sy, int width, int height)
         {
             SKBitmap result;
-            using (var temp = new SKBitmap(width, height, colorType, SKAlphaType.Unpremul))
+            using (var temp = new SKBitmap(width, height, ColorType, SKAlphaType.Unpremul))
             {
                 using (var canvas = new SKCanvas(temp))
                 {
-                    canvas.DrawBitmap(((XBitmap) bitmap).Bitmap, SKRect.Create(sx, sy, width, height),
+                    canvas.DrawBitmap(((XBitmap)bitmap).Bitmap, SKRect.Create(sx, sy, width, height),
                                       SKRect.Create(width, height));
                     result = temp.Copy();
                 }
@@ -31,7 +31,7 @@ namespace TX11Frontend.UIConnectorWrapper
 
         public IXBitmap CreateBitmap(int width, int height)
         {
-            return new XBitmap(new SKBitmap(width, height, colorType, SKAlphaType.Unpremul));
+            return new XBitmap(new SKBitmap(width, height, ColorType, SKAlphaType.Unpremul));
         }
 
         public IXBitmap CreateBitmap(int[] pixels, int width, int height)
@@ -44,7 +44,7 @@ namespace TX11Frontend.UIConnectorWrapper
             var h = GCHandle.Alloc(pixels, GCHandleType.Pinned);
             try
             {
-                var bitmap = new SKBitmap(width, height, colorType, SKAlphaType.Unpremul);
+                var bitmap = new SKBitmap(width, height, ColorType, SKAlphaType.Unpremul);
                 bitmap.InstallPixels(bitmap.Info, h.AddrOfPinnedObject(), bitmap.RowBytes, delegate { h.Free(); }, null);
                 return new XBitmap(bitmap);
             }
