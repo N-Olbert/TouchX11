@@ -73,11 +73,7 @@ namespace TX11Frontend.Views
                             {
                                 XConnector.Resolve<IXScreenObserver>()?.OnDraw(this, canvas);
                                 var drawBitmap = ((XCanvas)canvas).Bitmap;
-
-                                using (var scaledBitMap = drawBitmap.Resize(e.Info, SKFilterQuality.High))
-                                {
-                                    e.Surface.Canvas.DrawBitmap(scaledBitMap, 0, 0);
-                                }
+                                e.Surface.Canvas.DrawBitmap(drawBitmap, e.Info.Rect);
                             }
                         }
                     }
