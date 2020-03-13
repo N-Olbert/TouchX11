@@ -20,6 +20,7 @@ namespace TX11Frontend.Views
             MasterBehavior = MasterBehavior.Popover;
 
             MenuPages.Add((int) MenuItemType.Canvas, (NavigationPage) Detail);
+            MenuPages.Add((int) MenuItemType.Settings, new NavigationPage(new SettingsPage()));
         }
 
         public async Task NavigateFromMenu(int id)

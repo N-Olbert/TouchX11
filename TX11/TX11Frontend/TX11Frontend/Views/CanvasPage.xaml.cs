@@ -14,6 +14,7 @@ using TX11Frontend.ViewModels;
 using TX11Ressources.Localization;
 using TX11Shared.Graphics;
 using TX11Shared.Keyboard;
+using TX11Frontend.Models;
 
 namespace TX11Frontend.Views
 {
@@ -26,7 +27,13 @@ namespace TX11Frontend.Views
         private readonly CanvasViewModel viewModel;
 
         private System.Drawing.Size oldSize = System.Drawing.Size.Empty;
-        private SKSize realSize;
+        private SKSize screenSize;
+
+        /// <summary>
+        /// The currently active scaling factor.
+        /// Note: Scaling is constant during the life time of the server
+        /// </summary>
+        private float scaling;
         private int invalidationPending;
         private bool started;
 
@@ -59,13 +66,18 @@ namespace TX11Frontend.Views
                     {
                         Interlocked.Exchange(ref this.invalidationPending, 0);
                         var factory = XConnector.GetInstanceOf<IXBitmapFactory>();
-                        using (var bitmap = factory.CreateBitmap(e.Info.Width, e.Info.Height))
+                        using (var screenSizeBitmap = factory.CreateBitmap((int)screenSize.Width, (int)screenSize.Height))
                         {
                             var canvasFactory = XConnector.GetInstanceOf<IXCanvasFactory>();
-                            using (var canvas = canvasFactory.CreateCanvas(bitmap))
+                            using (var canvas = canvasFactory.CreateCanvas(screenSizeBitmap))
                             {
                                 XConnector.Resolve<IXScreenObserver>()?.OnDraw(this, canvas);
-                                e.Surface.Canvas.DrawBitmap(((XCanvas) canvas).Bitmap, 0, 0);
+                                var drawBitmap = ((XCanvas)canvas).Bitmap;
+
+                                using (var scaledBitMap = drawBitmap.Resize(e.Info, SKFilterQuality.High))
+                                {
+                                    e.Surface.Canvas.DrawBitmap(scaledBitMap, 0, 0);
+                                }
                             }
                         }
                     }
@@ -88,9 +100,9 @@ namespace TX11Frontend.Views
             get { return CanvasView.Density; }
         }
 
-        public double RealWidth => realSize.Width;
+        public double RealWidth => screenSize.Width;
 
-        public double RealHeight => realSize.Height;
+        public double RealHeight => screenSize.Height;
 
         public void Invalidate()
         {
@@ -111,7 +123,8 @@ namespace TX11Frontend.Views
         {
             if (started)
             {
-                XConnector.Resolve<IXScreenObserver>()?.OnTouch(this, (int) point.X, (int) point.Y);
+                var scaling = 1 / this.scaling;
+                XConnector.Resolve<IXScreenObserver>()?.OnTouch(this, (int)(point.X * scaling), (int)(point.Y * scaling));
             }
         }
 
@@ -140,7 +153,12 @@ namespace TX11Frontend.Views
                 CanvasView.IsVisible = true;
                 CanvasView.InvalidateSurface();
                 await Task.Delay(100);
-                realSize = CanvasView.CanvasSize;
+
+                var scale = (float)ScalingHelper.ScalingFactor;
+                var width = CanvasView.CanvasSize.Width / scale;
+                var height = CanvasView.CanvasSize.Height / scale;
+                this.scaling = scale;
+                screenSize = new SKSize(width, height);
                 StartupHelper.PrepareXServer();
                 await Task.Delay(100);
                 started = true;

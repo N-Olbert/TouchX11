@@ -10,7 +10,7 @@
   <ContentPage.Content>
       <StackLayout>
           <Label x:Name="ScaleLabel">Scale: </Label>
-          <Entry x:Name="ScaleEntry" Keyboard="Numeric">
+          <Entry x:Name="ScaleEntry" Keyboard="Numeric" TextChanged="ScaleEntry_TextChanged">
               <Entry.Behaviors>
                     <models:DecimalInputBehaviour />
               </Entry.Behaviors>

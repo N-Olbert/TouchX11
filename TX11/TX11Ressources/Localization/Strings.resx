@@ -124,7 +124,7 @@
     <value>X11 Server</value>
   </data>
   <data name="ScaleLabelText" xml:space="preserve">
-    <value>Scale:</value>
+    <value>Scale (only takes effect if set before server got started):</value>
   </data>
   <data name="SettingsPageTitle" xml:space="preserve">
     <value>Settings</value>

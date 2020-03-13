@@ -71,6 +71,7 @@
     <Compile Include="PlatformSpecific\IOSKeyCharMapper.cs" />
     <Compile Include="PlatformSpecific\XCanvasViewRenderer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PlatformSpecific\IOSScaleDefaultValueProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json">
@@ -144,7 +145,7 @@
       <Name>TX11Shared</Name>
     </ProjectReference>
     <ProjectReference Include="..\TX11Frontend\TX11Frontend.csproj">
-      <Project>{4B0DE1D7-395A-4F6A-AC81-E8485BD2BC2E}</Project>
+      <Project>{944274E3-EB6C-4D3A-B779-4F2EFE0B3350}</Project>
       <Name>TX11Frontend</Name>
     </ProjectReference>
   </ItemGroup>

@@ -8,6 +8,8 @@ Currently, supported platforms are: iOS, Android, Windows (WPF)
 # User manual 
 - A tap on the screen is equal to a left click
 
+- You may want to adjust the scaling factor in the "Settings" menu (do this BEFORE you start the server). Note: Currently scaling has only been tested on iOS, but it should work on any plattform.
+
 - Well... nothing more yet, everything else should be self-explanatory
 
 # Remarks

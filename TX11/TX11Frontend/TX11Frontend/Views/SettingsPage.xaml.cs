@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Globalization;
+using TX11Frontend.Models;
+using TX11Frontend.PlatformSpecific;
 using TX11Ressources.Localization;
 using Xamarin.Forms;
 
@@ -14,7 +16,22 @@ namespace TX11Frontend.Views
         {
             InitializeComponent();
             this.ScaleLabel.Text = Strings.ScaleLabelText;
-            this.ScaleEntry.Text = 1.00.ToString(CultureInfo.CurrentCulture);
+            var defaultValue = 1.00d;
+            var provider = DependencyService.Get<IXScaleDefaultValueProvider>();
+            if (provider != null)
+            {
+                defaultValue = provider.Scale;
+            }
+
+            this.ScaleEntry.Text = defaultValue.ToString(CultureInfo.CurrentCulture);
+        }
+
+        void ScaleEntry_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (double.TryParse(e.NewTextValue, out double result))
+            {
+                ScalingHelper.SetScalingFactor(result);
+            }
         }
     }
 }
