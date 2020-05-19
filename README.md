@@ -28,7 +28,7 @@ While more or less fully functional most code which has not been ported is undoc
 Well... it's X11 so you'll get some structural problems for free. Refer to Don Hopkins ["The X-Windows Disaster"](https://medium.com/@donhopkins/the-x-windows-disaster-128d398ebd47) for a good (but humorous) overview.
 
 Concrete problems of this app include:
-1. Missing extensions: Some X11-Apps might not work as this app only supports three extensions (BIGREQUESTES, XSHAPE, XTEST). This app is (according to the X11-Protocol) a completely valid X11-Server, though...
+1. Missing extensions: Some X11-Apps might not work as this app only supports four extensions (BIGREQUESTES, XSHAPE, XTEST, Generic Event Extension). This app is (according to the X11-Protocol) a completely valid X11-Server, though...
 2. Performance: You will notice that slightly more complex apps than "xtrem" won't run very well, especially over a network. While this is a structural issue I bet there are also some performance killers within the code of this app
 3. Security: All communication between this app and any X11-Client is not encrypted! Be sure to use this app within a trusted environment only (or setup a VPN)
 4. Usability: Well... X11 wasn't made for mobile devices and mobile devices weren't made with X11 in mind. A LOT of things will be annoying, for example you dont have a "Control"-key on an iOS-keyboard.
